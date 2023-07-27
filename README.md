@@ -1,0 +1,4 @@
+DATABSE_ADMIN: 
+
+User: ja840u8wtdlu6bj7zlg2
+Password: pscale_pw_rwclwQQmk3bcwaVHStL5bou0nisuHpxcK5BHPEiub5E
