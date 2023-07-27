@@ -1,0 +1,110 @@
+// This is your prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+// location_type
+model LocationType {
+  location_type_id  Int     @id @default(autoincrement())
+  title             String
+}
+
+// post_comment
+model PostComment {
+  comment_id        Int     @id @default(autoincrement())
+  text              String
+  comment_post_id   Int
+  comment_user_id   Int
+  createdAt         DateTime @default(now())
+  @@index([comment_post_id], name: "post_comment_comment_post_id_foreign")
+  @@index([comment_user_id], name: "post_comment_comment_user_id_foreign")
+}
+
+// post
+model Post {
+  post_id           Int     @id @default(autoincrement())
+  text              String
+  category          String
+  likes             Int @default(0)
+  post_user_id      Int
+  createdAt         DateTime @default(now())
+  @@index([post_user_id], name: "post_post_user_id_foreign")
+}
+
+// post_category_type
+model PostCategoryType {
+  category_type_id  Int     @id @default(autoincrement())
+  title             String
+}
+
+// location_review
+model LocationReview {
+  review_id         Int     @id @default(autoincrement())
+  text              String
+  review_location_id Int
+  review_user_id    Int
+  createdAt         DateTime @default(now())
+  @@index([review_location_id], name: "location_review_review_location_id_foreign")
+  @@index([review_user_id], name: "location_review_review_user_id_foreign")
+}
+
+// user_type
+model UserType {
+  user_type_id      Int     @id @default(autoincrement())
+  title             String
+}
+
+// like
+model Like {
+  like_id           Int     @id @default(autoincrement())
+  user_id           Int
+  post_id           Int
+  @@index([user_id], name: "like_user_id_foreign")
+  @@index([post_id], name: "like_post_id_foreign")
+}
+
+// user_gender_type
+model UserGenderType {
+  gender_id         Int     @id @default(autoincrement())
+  title             String
+}
+
+// location
+model Location {
+  location_id       Int     @id @default(autoincrement())
+  lat               String
+  lng               String
+  address           String
+  thumbnail         String
+  type              String
+  user_created_id   Int
+  photo             String
+  description       String
+  createdAt         DateTime @default(now())
+  @@index([user_created_id], name: "location_user_created_id_foreign")
+  @@index([type], name: "location_type_title_foreign")
+}
+
+// user
+model User {
+  user_id           Int     @id @default(autoincrement())
+  thumbnail         String
+  phone_number      String
+  first_name        String
+  last_name         String
+  email             String
+  password          String
+  gender            String @default("not specified")
+  type              String
+  createdAt         DateTime @default(now())
+  @@index([gender], name: "user_gender_type_title_foreign")
+  @@index([type], name: "user_type_title_foreign")
+}
