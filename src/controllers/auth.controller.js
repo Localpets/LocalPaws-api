@@ -13,9 +13,8 @@ export const userRegister = async (req, res) => {
 
     // REVISAR SI EL USUARIO EXISTE
     const q = await Auth.validateUserAlreadyExists(req.body.email)
-    console.log(q)
-    // SI EL USUARIO EXISTE, ENVIAR ERROR
 
+    // SI EL USUARIO EXISTE, ENVIAR ERROR
     if (q) {
         return res.status(400).json({
             ok: false,
@@ -39,7 +38,8 @@ export const userRegister = async (req, res) => {
                 req.body.email,
                 hashedPassword,
                 req.body.gender,
-                req.body.type
+                req.body.type,
+                req.body.marketing_accept
             )
 
             console.log('Usuario creado correctamente')
@@ -57,11 +57,6 @@ export const userRegister = async (req, res) => {
                 msg: 'El usuario no pudo ser creado a pesar de no existir, contacte al administrador'
             })
         }
-
-        // Crear y firmar el JWT
-        
-        // Enviar el JWT
-
 }
 
 // Login de usuario
@@ -72,7 +67,7 @@ export const userLogin = async (req, res) => {
     if (q) {
         // Validar la contraseña del usuario con ese correo y la que envio en el login.
         const validPassword = bcryptjs.compareSync(req.body.password, q.password);
-        // Si la contraseña es incorrecta, enviar error
+        // Si la contraseña es incorrecta, enviar error 400
         if (!validPassword) return res.status(400).json({ ok: false, msg: 'Contraseña o email incorrectos'});
     
         // Crear y firmar el JWT
@@ -86,8 +81,8 @@ export const userLogin = async (req, res) => {
         .status(200)
         .json(others)
     
-        } else { // Si el usuario no existe, enviar error
-        return res.status(400).json({
+        } else { // Si el usuario no existe, enviar error 403
+        return res.status(403).json({
             ok: false,
             msg: 'El usuario no existe'
         });

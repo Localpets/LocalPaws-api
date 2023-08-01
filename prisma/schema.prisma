@@ -32,6 +32,7 @@ model PostComment {
 model Post {
   post_id           Int     @id @default(autoincrement())
   text              String
+  image             String  @default("no image")
   category          String
   likes             Int @default(0)
   post_user_id      Int
@@ -96,15 +97,106 @@ model Location {
 // user
 model User {
   user_id           Int     @id @default(autoincrement())
-  thumbnail         String
+  thumbnail         String @default("http://localhost:3000/icons/cat.png")
   phone_number      String
   first_name        String
   last_name         String
   email             String
   password          String
+  marketing_accept  Boolean @default(false)
   gender            String @default("not specified")
   type              String
   createdAt         DateTime @default(now())
   @@index([gender], name: "user_gender_type_title_foreign")
   @@index([type], name: "user_type_title_foreign")
+}
+
+model relationShip {
+  id                Int     @id @default(autoincrement())
+  user_id           Int
+  friend_id         Int
+  @@index([user_id], name: "relationship_user_id_foreign")
+  @@index([friend_id], name: "relationship_friend_id_foreign")
+}
+
+model story {
+  story_id          Int     @id @default(autoincrement())
+  user_id           Int
+  image             String
+  createdAt         DateTime @default(now())
+  @@index([user_id], name: "story_user_id_foreign")
+}
+
+model story_view {
+  id                Int     @id @default(autoincrement())
+  story_id          Int
+  user_id           Int
+  @@index([story_id], name: "story_view_story_id_foreign")
+  @@index([user_id], name: "story_view_user_id_foreign")
+}
+
+model story_like {
+  id                Int     @id @default(autoincrement())
+  story_id          Int
+  user_id           Int
+  @@index([story_id], name: "story_like_story_id_foreign")
+  @@index([user_id], name: "story_like_user_id_foreign")
+}
+
+model message {
+  id                Int     @id @default(autoincrement())
+  sender_id         Int
+  receiver_id       Int
+  text              String
+  createdAt         DateTime @default(now())
+  @@index([sender_id], name: "message_sender_id_foreign")
+  @@index([receiver_id], name: "message_receiver_id_foreign")
+}
+
+model notification {
+  id                Int     @id @default(autoincrement())
+  user_id           Int
+  text              String
+  createdAt         DateTime @default(now())
+  @@index([user_id], name: "notification_user_id_foreign")
+}
+
+model notification_view {
+  id                Int     @id @default(autoincrement())
+  notification_id   Int
+  user_id           Int
+  @@index([notification_id], name: "notification_view_notification_id_foreign")
+  @@index([user_id], name: "notification_view_user_id_foreign")
+}
+
+model notification_like {
+  id                Int     @id @default(autoincrement())
+  notification_id   Int
+  user_id           Int
+  @@index([notification_id], name: "notification_like_notification_id_foreign")
+  @@index([user_id], name: "notification_like_user_id_foreign")
+}
+
+model notification_comment {
+  id                Int     @id @default(autoincrement())
+  notification_id   Int
+  user_id           Int
+  @@index([notification_id], name: "notification_comment_notification_id_foreign")
+  @@index([user_id], name: "notification_comment_user_id_foreign")
+}
+
+model notification_follow {
+  id                Int     @id @default(autoincrement())
+  notification_id   Int
+  user_id           Int
+  @@index([notification_id], name: "notification_follow_notification_id_foreign")
+  @@index([user_id], name: "notification_follow_user_id_foreign")
+}
+
+model message_like {
+  id                Int     @id @default(autoincrement())
+  message_id        Int
+  user_id           Int
+  @@index([message_id], name: "message_like_message_id_foreign")
+  @@index([user_id], name: "message_like_user_id_foreign")
 }

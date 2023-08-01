@@ -19,6 +19,7 @@ dotenv.config();
 
 class Server {
     constructor() {
+        // Inicialización del servidor
         this.app = express();
         this.port = process.env.PORT;
 
@@ -30,6 +31,7 @@ class Server {
         this.likeRoutePath = '/api/like';
         this.reviewRoutePath = '/api/review';
         this.authRoutePath = '/api/auth';
+        this.whiteList = ['http://localhost:5173'];
 
         // Middlewares
         this.middlewares();
@@ -40,8 +42,7 @@ class Server {
 
     middlewares() { 
         // CORS
-        this.app.use(cors());
-
+        this.app.use(cors({ origin: this.whiteList, credentials: true }))
         // Body read and parse
         this.app.use(express.json());
 
