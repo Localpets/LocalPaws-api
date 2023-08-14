@@ -31,7 +31,7 @@ class Server {
         this.postRoutePath = '/api/post';
         this.likeRoutePath = '/api/like';
         this.followRoutePath = '/api/follow';
-        this.whiteList = ['http://localhost:5173', 'https://localpaws-api-vdfi-dev.fl0.io/'];
+        this.whiteList = ['http://localhost:5173', 'https://localpaws-api-vdfi-dev.fl0.io/', '15.197.201.241:443'];
 
         // Middlewares
         this.middlewares();
