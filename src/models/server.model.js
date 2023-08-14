@@ -31,7 +31,7 @@ class Server {
         this.postRoutePath = '/api/post';
         this.likeRoutePath = '/api/like';
         this.followRoutePath = '/api/follow';
-        this.whiteList = ['http://localhost:5173'];
+        this.whiteList = ['http://localhost:5173', 'https://local-paws-api.vercel.app/'];
 
         // Middlewares
         this.middlewares();
