@@ -7,7 +7,17 @@ const prisma = new PrismaClient();
 // Crear la clase Auth, que se encargará de manejar la autenticación de los usuarios
 
 class Auth {
-  constructor(thumbnail, phoneNumber, firstName, lastName, email, password, gender = 'not specified', type) {}
+  constructor() {
+    this.thumbnail = thumbnail;
+    this.phoneNumber = phoneNumber;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.password = password;
+    this.type = type;
+    // optional
+    this.gender = gender;
+  }
 
   // Método para validar si el usuario ya existe en la base de datos
   static async validateUserAlreadyExists(email) {

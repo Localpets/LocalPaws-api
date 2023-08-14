@@ -35,6 +35,7 @@ export const userRegister = async (req, res) => {
                 req.body.phone_number,
                 req.body.first_name,
                 req.body.last_name,
+                req.body.username,
                 req.body.email,
                 hashedPassword,
                 req.body.gender,

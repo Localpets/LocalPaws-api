@@ -1,13 +1,19 @@
 import { Router } from "express";
-// import { 
-//     userGet, 
-//     userDelete, 
-//     userPut, 
-//     userPost } from '../controllers/like.controller.js';
+import { 
+    createLike,
+    readLikeById,
+    readAllLikesByUserId,
+    readAllLikesByPostId,
+    deleteLike } from '../controllers/like.controller.js';
 
 
 const likeRouter = Router();
 
-likeRouter.get('/find/:like_id', (req, res) => res.send('GET request to the user page'));
+// Definir las rutas de like
+likeRouter.post('/:like_type/:user_id/:post_id', createLike);
+likeRouter.get('/:like_id', readLikeById);
+likeRouter.get('/user/:user_id', readAllLikesByUserId);
+likeRouter.get('/post/:post_id', readAllLikesByPostId);
+likeRouter.delete('/:like_id', deleteLike);
 
 export default likeRouter;

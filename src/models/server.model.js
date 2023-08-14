@@ -5,13 +5,14 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 // Rutas de la API
-import authRoutes from '../routes/auth.routes.js';
+import authRouter from '../routes/auth.routes.js';
 import userRouter from '../routes/user.routes.js';
 import commentRouter from '../routes/comment.routes.js';
 import locationRouter from '../routes/location.routes.js';
 import postRouter from '../routes/post.routes.js';
 import likeRouter from '../routes/like.routes.js';
 import reviewRouter from '../routes/review.routes.js';
+import followRouter from '../routes/follow.routes.js';
 
 // Acceso a variables de entorno
 dotenv.config();
@@ -31,6 +32,8 @@ class Server {
         this.likeRoutePath = '/api/like';
         this.reviewRoutePath = '/api/review';
         this.authRoutePath = '/api/auth';
+        this.followRoutePath = '/api/follow';
+        this.likeRoutePath = '/api/like';
         this.whiteList = ['http://localhost:5173'];
 
         // Middlewares
@@ -43,6 +46,7 @@ class Server {
     middlewares() { 
         // CORS
         this.app.use(cors({ origin: this.whiteList, credentials: true }))
+        
         // Body read and parse
         this.app.use(express.json());
 
@@ -60,12 +64,14 @@ class Server {
         this.app.use(this.postRoutePath, postRouter);
         this.app.use(this.likeRoutePath, likeRouter);
         this.app.use(this.reviewRoutePath, reviewRouter);
-        this.app.use(this.authRoutePath, authRoutes);
+        this.app.use(this.authRoutePath, authRouter);
+        this.app.use(this.followRoutePath, followRouter);
+        this.app.use(this.likeRoutePath, likeRouter);
     }
 
     listen() {
         this.app.listen(this.port, () => {
-            console.log(`LocalPaws app listening on port ${this.port}`);
+            console.log(`Pawsplorer app listening on port ${this.port}`);
         });
     }
 

@@ -1,13 +1,19 @@
 import { Router } from "express";
-// import { 
-//     userGet, 
-//     userDelete, 
-//     userPut, 
-//     userPost } from '../controllers/user.controller.js';
+import { 
+    userGetById,
+    userGetByEmail,
+    userGetAll,
+    userUpdate, 
+    userDelete, 
+    } from '../controllers/user.controller.js';
 
 
 const userRouter = Router();
 
-userRouter.get('/find/:user_id', (req, res) => res.send('GET request to the user page'));
+userRouter.get('/find/id/:user_id', userGetById);
+userRouter.get('/find/mail/:email', userGetByEmail);
+userRouter.get('/find/all', userGetAll);
+userRouter.put('/update/:user_id', userUpdate);
+userRouter.delete('/delete/:user_id', userDelete);
 
 export default userRouter;

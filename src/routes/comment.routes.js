@@ -1,13 +1,18 @@
 import { Router } from "express";
-// import { 
-//     userGet, 
-//     userDelete, 
-//     userPut, 
-//     userPost } from '../controllers/comment.controller.js';
+import { 
+    commentGet, 
+    commentGetAll, 
+    commentPost, 
+    commentPut,
+    commentDelete } from '../controllers/comment.controller.js';
 
 
 const commentRouter = Router();
 
-commentRouter.get('/find/:comment_id', (req, res) => res.send('GET request to the user page'));
+commentRouter.get('/find/:comment_id', commentGet);
+commentRouter.get('/find/post/:comment_post_id', commentGetAll);
+commentRouter.post('/create', commentPost);
+commentRouter.put('/update/:comment_id', commentPut);
+commentRouter.delete('/delete/:comment_id', commentDelete);
 
 export default commentRouter;
