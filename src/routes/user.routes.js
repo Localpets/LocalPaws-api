@@ -5,6 +5,14 @@ import {
     userGetAll,
     userUpdate, 
     userDelete, 
+    userTypeCreate as createUserType,
+    userTypeGetAll as readAllUserTypes,
+    userTypeGetById as getUserTypeById,
+    userTypeDelete as deleteUserTypeById,
+    userGenderCreate as createUserGenre,
+    userGenderGetAll as readAllUserGenres,
+    userGenderGetById as getUserGenreById,
+    userGenderDelete as deleteUserGenreById
     } from '../controllers/user.controller.js';
 
 
