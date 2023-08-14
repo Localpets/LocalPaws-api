@@ -7,7 +7,10 @@ export const createFollow = async (req, res) => {
         const followerId = parseInt(req.params.followerId);
         const followedId = parseInt(req.params.followedId);
         const follow = await Follow.startFollowing(followerId, followedId);
-        res.status(201).json(follow);
+        res.status(201).json({
+            msg: 'POST API - controlador: Crear un nuevo follow',
+            follow
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -18,7 +21,10 @@ export const readFollowById = async (req, res) => {
     try {
         const id = parseInt(req.params.follow_id);
         const follow = await Follow.getFollowById(id);
-        res.status(200).json(follow);
+        res.status(200).json({
+            msg: 'GET API - controlador: Obtener un follow por Id',
+            follow
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -29,7 +35,10 @@ export const readAllFollowsByUserId = async (req, res) => {
     try {
         const userId = parseInt(req.params.followerId);
         const follows = await Follow.getFollowsByUserId(userId);
-        res.status(200).json(follows);
+        res.status(200).json({
+            msg: 'GET API - controlador: Todos los follows de un usuario',
+            follows
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -40,7 +49,10 @@ export const readAllFollowsByFollowedId = async (req, res) => {
     try {
         const userId = parseInt(req.params.followedId);
         const follows = await Follow.getFollowsByFollowedId(userId);
-        res.status(200).json(follows);
+        res.status(200).json({
+            msg: 'GET API - controlador: Todos los follows de un usuario',
+            follows
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -52,7 +64,10 @@ export const deleteFollow = async (req, res) => {
         const followerId = parseInt(req.params.followerId);
         const followedId = parseInt(req.params.followedId);
         const follow = await Follow.stopFollowing(followerId, followedId);
-        res.status(200).json(follow);
+        res.status(200).json({
+            msg: 'DELETE API - controlador: Eliminado un follow',
+            follow
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

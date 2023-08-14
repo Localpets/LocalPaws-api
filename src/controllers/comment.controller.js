@@ -8,6 +8,7 @@ export async function commentGet(req, res) {
         const id = parseInt(req.params.comment_id);
         const comment = await Comment.readCommentById(id);
         res.status(200).json({
+        msg: "Comentario obtenido correctamente",
         ok: true,
         comment
         });
@@ -27,6 +28,7 @@ export async function commentGetAll(req, res) {
         const postId = parseInt(req.params.comment_post_id);
         const comments = await Comment.readAllCommentsBycomment_post_id(postId);
         res.status(200).json({
+        msg: "Comentarios obtenidos correctamente",
         ok: true,
         comments
         });
@@ -52,6 +54,7 @@ export async function commentPost(req, res) {
         req.body.text
         );
         res.status(200).json({
+        msg: "Comentario creado correctamente",
         ok: true,
         comment
         });
@@ -74,6 +77,7 @@ export async function commentPut(req, res) {
         req.body.text
         );
         res.status(200).json({
+        msg: "Comentario actualizado correctamente",
         ok: true,
         comment
         });
@@ -93,6 +97,7 @@ export async function commentDelete(req, res) {
         const id = parseInt(req.params.comment_id);
         const comment = await Comment.deleteComment(id);
         res.status(200).json({
+        msg: "Comentario eliminado correctamente",
         ok: true,
         comment
         });

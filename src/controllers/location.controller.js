@@ -24,6 +24,7 @@ export const createLocation = async (req, res = response) => {
     
         // Responder al cliente con la ubicación creada
         res.status(201).json({
+        msg: "Ubicación creada correctamente",
         ok: true,
         location,
         });
@@ -56,6 +57,7 @@ export const updateLocation = async (req, res = response) => {
     
         // Responder al cliente con la ubicación actualizada
         res.status(200).json({
+        msg: "Ubicación actualizada correctamente",
         ok: true,
         location,
         });
@@ -75,6 +77,7 @@ export const readAllLocations = async (req, res = response) => {
     
         // Responder al cliente con las ubicaciones
         res.status(200).json({
+        msg: "Ubicaciones obtenidas correctamente",
         ok: true,
         locations,
         });
@@ -97,6 +100,7 @@ export const getLocationById = async (req, res = response) => {
     
         // Responder al cliente con la ubicación
         res.status(200).json({
+        msg: "Ubicación obtenida correctamente",
         ok: true,
         location,
         });
@@ -119,6 +123,7 @@ export const deleteLocationById = async (req, res = response) => {
     
         // Responder al cliente con la ubicación borrada
         res.status(200).json({
+        msg: "Ubicación borrada correctamente",
         ok: true,
         location,
         });
@@ -141,6 +146,7 @@ export const createLocationType = async (req, res = response) => {
     
         // Responder al cliente con el tipo de ubicación creado
         res.status(201).json({
+        msg: "Tipo de ubicación creado correctamente",
         ok: true,
         locationType,
         });
@@ -160,6 +166,7 @@ export const readAllLocationTypes = async (req, res = response) => {
     
         // Responder al cliente con los tipos de ubicación
         res.status(200).json({
+        msg: "Tipos de ubicación obtenidos correctamente",
         ok: true,
         locationTypes,
         });
@@ -182,6 +189,7 @@ export const getLocationTypeById = async (req, res = response) => {
     
         // Responder al cliente con el tipo de ubicación
         res.status(200).json({
+        msg: "Tipo de ubicación obtenido correctamente",
         ok: true,
         locationType,
         });
@@ -204,6 +212,7 @@ export const deleteLocationTypeById = async (req, res = response) => {
     
         // Responder al cliente con el tipo de ubicación borrado
         res.status(200).json({
+        msg: "Tipo de ubicación borrado correctamente",
         ok: true,
         locationType,
         });
@@ -226,6 +235,7 @@ export const readAllLocationsByType = async (req, res = response) => {
     
         // Responder al cliente con las ubicaciones
         res.status(200).json({
+        msg: "Ubicaciones obtenidas correctamente por tipo",
         ok: true,
         locations,
         });
@@ -248,6 +258,7 @@ export const readAllLocationsByUser = async (req, res = response) => {
 
         // Responder al cliente con las ubicaciones
         res.status(200).json({
+        msg: "Ubicaciones obtenidas correctamente por usuario",
         ok: true,
         locations,
         });
@@ -270,6 +281,7 @@ export const createLocationPhoto = async (req, res = response) => {
 
         // Responder al cliente con la foto de ubicación creada
         res.status(201).json({
+        msg: "Foto de ubicación creada correctamente",
         ok: true,
         locationPhoto,
         });
@@ -293,6 +305,7 @@ export const readAllLocationPhotos = async (req, res = response) => {
 
         // Responder al cliente con las fotos de ubicación
         res.status(200).json({
+        msg: "Fotos de ubicación obtenidas correctamente",
         ok: true,
         locationPhotos,
         });
@@ -315,6 +328,7 @@ export const deleteLocationPhotoById = async (req, res = response) => {
 
         // Responder al cliente con la foto de ubicación borrada
         res.status(200).json({
+        msg: "Foto de ubicación borrada correctamente",
         ok: true,
         locationPhoto,
         });
@@ -339,6 +353,7 @@ export const createLocationReview = async (req, res = response) => {
 
         // Responder al cliente con la review de ubicación creada
         res.status(201).json({
+        msg: "Review de ubicación creada correctamente",
         ok: true,
         locationReview,
         });
@@ -361,6 +376,7 @@ export const readAllLocationReviews = async (req, res = response) => {
 
         // Responder al cliente con las reviews de ubicación
         res.status(200).json({
+        msg: "Reviews de ubicación obtenidas correctamente",
         ok: true,
         locationReviews,
         });
@@ -384,6 +400,7 @@ export const updateLocationReviewById = async (req, res = response) => {
 
         // Responder al cliente con la review de ubicación actualizada
         res.status(200).json({
+        msg: "Review de ubicación actualizada correctamente",
         ok: true,
         locationReview,
         });

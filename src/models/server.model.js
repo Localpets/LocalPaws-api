@@ -11,7 +11,6 @@ import commentRouter from '../routes/comment.routes.js';
 import locationRouter from '../routes/location.routes.js';
 import postRouter from '../routes/post.routes.js';
 import likeRouter from '../routes/like.routes.js';
-import reviewRouter from '../routes/review.routes.js';
 import followRouter from '../routes/follow.routes.js';
 
 // Acceso a variables de entorno
@@ -25,15 +24,13 @@ class Server {
         this.port = process.env.PORT;
 
         // Routes
+        this.authRoutePath = '/api/auth';
         this.userRoutePath = '/api/user';
         this.commentRoutePath = '/api/comment';
         this.locationRoutePath = '/api/location';
         this.postRoutePath = '/api/post';
         this.likeRoutePath = '/api/like';
-        this.reviewRoutePath = '/api/review';
-        this.authRoutePath = '/api/auth';
         this.followRoutePath = '/api/follow';
-        this.likeRoutePath = '/api/like';
         this.whiteList = ['http://localhost:5173'];
 
         // Middlewares
@@ -58,15 +55,13 @@ class Server {
     }
 
     routes() {
+        this.app.use(this.authRoutePath, authRouter);
         this.app.use(this.userRoutePath, userRouter);
         this.app.use(this.commentRoutePath, commentRouter);
         this.app.use(this.locationRoutePath, locationRouter);
         this.app.use(this.postRoutePath, postRouter);
         this.app.use(this.likeRoutePath, likeRouter);
-        this.app.use(this.reviewRoutePath, reviewRouter);
-        this.app.use(this.authRoutePath, authRouter);
         this.app.use(this.followRoutePath, followRouter);
-        this.app.use(this.likeRoutePath, likeRouter);
     }
 
     listen() {
