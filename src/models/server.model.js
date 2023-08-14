@@ -1,7 +1,7 @@
 // Paquetes de Node.js
 import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors';
+import cors from 'cors'
 import cookieParser from 'cookie-parser';
 
 // Rutas de la API
