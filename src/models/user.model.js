@@ -20,10 +20,9 @@ class User {
   }
 
   // Método estático para crear un usuario en la base de datos
-  static async createUser(thumbnail, phoneNumber, firstName, lastName, username, email, password, gender = 'not specified', type, marketing_accept = false) {
+  static async createUser(phoneNumber, firstName, lastName, username, email, password, gender = 'not specified', type, marketing_accept = false) {
     return prisma.user.create({
       data: {
-        thumbnail,
         phone_number: phoneNumber,
         first_name: firstName,
         last_name: lastName,
@@ -31,7 +30,6 @@ class User {
         email,
         password,
         gender,
-        type,
         marketing_accept
       },
     });

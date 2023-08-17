@@ -4,12 +4,14 @@ import { response } from "express";
 // importar el modelo de ubicación
 
 import Location from "../models/location.model.js";
+import { parse } from "path";
 
 export const createLocation = async (req, res = response) => {
     // Extraer el body de la petición
-    const { title, lat, lng, address, type, userCreatedId, locationPhotos } =
-        req.body;
+    const { title, lat, lng, address, type, location_photos } = req.body;
     
+    const user_created_id = parseInt(req.body.userCreatedId);
+
     try {
         // Crear una nueva ubicación
         const location = await Location.createLocation(
@@ -18,8 +20,8 @@ export const createLocation = async (req, res = response) => {
         lng,
         address,
         type,
-        userCreatedId,
-        locationPhotos
+        user_created_id,
+        location_photos
         );
     
         // Responder al cliente con la ubicación creada

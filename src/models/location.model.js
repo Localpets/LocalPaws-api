@@ -25,8 +25,8 @@ class Location {
         lng,
         address,
         type,
-        userCreatedId,
-        locationPhotos,
+        user_created_id: userCreatedId,
+        location_photos: locationPhotos,
       },
     });
   }

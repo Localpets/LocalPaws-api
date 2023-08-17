@@ -31,7 +31,6 @@ export const userRegister = async (req, res) => {
         // Crear el usuario en la base de datos
         try {
             User.createUser(                
-                req.body.thumbnail,
                 req.body.phone_number,
                 req.body.first_name,
                 req.body.last_name,
@@ -43,12 +42,19 @@ export const userRegister = async (req, res) => {
                 req.body.marketing_accept
             )
 
+            // Crear y firmar el JWT
+            const token = jwt.sign({id: req.body.password}, "localpaws_api_key", {
+                expiresIn: 86400 // 24 horas
+            })
+
             console.log('Usuario creado correctamente')
 
             return res.status(201).json({
                 ok: true,
-                msg: 'Usuario creado correctamente'
+                msg: 'Usuario creado correctamente',
+                token: token
             })
+
         }  catch (error) {
 
             console.log(error)

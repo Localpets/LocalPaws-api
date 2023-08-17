@@ -57,6 +57,12 @@ model Like {
   @@index([post_id], name: "like_post_id_foreign")
 }
 
+// lke_type
+model LikeType {
+  like_type_id      Int     @id @default(autoincrement())
+  title             String
+}
+
 // user_gender_type
 model UserGenderType {
   gender_id         Int     @id @default(autoincrement())
@@ -116,13 +122,14 @@ model User {
   password          String
   marketing_accept  Boolean @default(false)
   gender            String @default("not specified")
-  type              String
+  type              String @default("USER")
   createdAt         DateTime @default(now())
   @@index([gender], name: "user_gender_type_title_foreign")
   @@index([type], name: "user_type_title_foreign")
 }
 
-model follow {
+// user_follow
+model Follow {
   id                Int     @id @default(autoincrement())
   followerId        Int
   followedId        Int
@@ -130,31 +137,18 @@ model follow {
   @@index([followedId], name: "follow_friend_id_foreign")
 }
 
-model story {
+// user_story
+model Story {
   story_id          Int     @id @default(autoincrement())
   user_id           Int
   image             String
+  views             Int @default(0)
+  likes             Int @default(0)
   createdAt         DateTime @default(now())
   @@index([user_id], name: "story_user_id_foreign")
 }
 
-model story_view {
-  id                Int     @id @default(autoincrement())
-  story_id          Int
-  user_id           Int
-  @@index([story_id], name: "story_view_story_id_foreign")
-  @@index([user_id], name: "story_view_user_id_foreign")
-}
-
-model story_like {
-  id                Int     @id @default(autoincrement())
-  story_id          Int
-  user_id           Int
-  @@index([story_id], name: "story_like_story_id_foreign")
-  @@index([user_id], name: "story_like_user_id_foreign")
-}
-
-model message {
+model Message {
   id                Int     @id @default(autoincrement())
   sender_id         Int
   receiver_id       Int
@@ -164,7 +158,7 @@ model message {
   @@index([receiver_id], name: "message_receiver_id_foreign")
 }
 
-model message_like {
+model Message_like {
   id                Int     @id @default(autoincrement())
   message_id        Int
   user_id           Int
@@ -172,43 +166,17 @@ model message_like {
   @@index([user_id], name: "message_like_user_id_foreign")
 }
 
-
-model notification {
+model Notification {
   id                Int     @id @default(autoincrement())
   user_id           Int
   text              String
+  type              String
   createdAt         DateTime @default(now())
   @@index([user_id], name: "notification_user_id_foreign")
 }
 
-model notification_message {
+model Notification_type {
   id                Int     @id @default(autoincrement())
-  notification_id   Int
-  user_id           Int
-  @@index([notification_id], name: "notification_message_notification_id_foreign")
-  @@index([user_id], name: "notification_message_user_id_foreign")
-}
-
-model notification_like {
-  id                Int     @id @default(autoincrement())
-  notification_id   Int
-  user_id           Int
-  @@index([notification_id], name: "notification_like_notification_id_foreign")
-  @@index([user_id], name: "notification_like_user_id_foreign")
-}
-
-model notification_comment {
-  id                Int     @id @default(autoincrement())
-  notification_id   Int
-  user_id           Int
-  @@index([notification_id], name: "notification_comment_notification_id_foreign")
-  @@index([user_id], name: "notification_comment_user_id_foreign")
-}
-
-model notification_follow {
-  id                Int     @id @default(autoincrement())
-  notification_id   Int
-  user_id           Int
-  @@index([notification_id], name: "notification_follow_notification_id_foreign")
-  @@index([user_id], name: "notification_follow_user_id_foreign")
+  title             String
+  @@index([title], name: "notification_type_title_foreign")
 }
