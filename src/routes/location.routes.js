@@ -19,33 +19,35 @@ import {
     updateLocationReviewById
 } from '../controllers/location.controller.js';
 
+// Importar metodos de verificacion de tokens
+import verifyToken from '../middlewares/authJWT.js';
 
 const locationRouter = Router();
 
 // CRUD de ubicaciones
-locationRouter.post('/create', createLocation);
-locationRouter.put('/update/:id', updateLocation);
-locationRouter.get('/find/all', readAllLocations);
-locationRouter.get('/find/id/:id', getLocationById);
-locationRouter.delete('/delete/:id', deleteLocationById);
-locationRouter.get('/find/type/:type', readAllLocationsByType);
-locationRouter.get('/find/user/:userId', readAllLocationsByUser);
+locationRouter.post('/create', verifyToken, createLocation);
+locationRouter.put('/update/:id', verifyToken, updateLocation);
+locationRouter.get('/find/all', verifyToken, readAllLocations);
+locationRouter.get('/find/id/:id', verifyToken, getLocationById);
+locationRouter.delete('/delete/:id', verifyToken, deleteLocationById);
+locationRouter.get('/find/type/:type', verifyToken, readAllLocationsByType);
+locationRouter.get('/find/user/:userId', verifyToken, readAllLocationsByUser);
 
 // CRUD de tipos de ubicación
-locationRouter.post('/type/create', createLocationType);
-locationRouter.get('/type/find/all', readAllLocationTypes);
-locationRouter.get('/type/find/id/:id', getLocationTypeById);
-locationRouter.delete('/type/delete/:id', deleteLocationTypeById);
+locationRouter.post('/type/create', verifyToken, createLocationType);
+locationRouter.get('/type/find/all', verifyToken, readAllLocationTypes);
+locationRouter.get('/type/find/id/:id', verifyToken, getLocationTypeById);
+locationRouter.delete('/type/delete/:id', verifyToken, deleteLocationTypeById);
 
 // CRUD de fotos de ubicación
-locationRouter.post('/photo/create', createLocationPhoto);
-locationRouter.get('/photo/find/all', readAllLocationPhotos);
-locationRouter.delete('/photo/delete/:id', deleteLocationPhotoById);
+locationRouter.post('/photo/create', verifyToken, createLocationPhoto);
+locationRouter.get('/photo/find/all', verifyToken, readAllLocationPhotos);
+locationRouter.delete('/photo/delete/:id', verifyToken, deleteLocationPhotoById);
 
 // CRUD de reseñas de ubicación
-locationRouter.post('/review/create', createLocationReview);
-locationRouter.get('/review/find/all', readAllLocationReviews);
-locationRouter.put('/review/update/:id', updateLocationReviewById);
+locationRouter.post('/review/create', verifyToken, createLocationReview);
+locationRouter.get('/review/find/all', verifyToken, readAllLocationReviews);
+locationRouter.put('/review/update/:id', verifyToken, updateLocationReviewById);
 
 
 export default locationRouter;

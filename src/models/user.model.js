@@ -20,7 +20,7 @@ class User {
   }
 
   // Método estático para crear un usuario en la base de datos
-  static async createUser(phoneNumber, firstName, lastName, username, email, password, gender = 'not specified', type, marketing_accept = false) {
+  static async createUser(phoneNumber, firstName, lastName, username, email, password, gender = 'not specified', type = 'USER', token, marketing_accept = false) {
     return prisma.user.create({
       data: {
         phone_number: phoneNumber,
@@ -29,8 +29,19 @@ class User {
         username,
         email,
         password,
+        type,
         gender,
-        marketing_accept
+        token,
+        marketing_accept,
+      },
+    });
+  }
+
+  static async createAdminToken(user_id, token) {
+    return prisma.adminToken.create({
+      data: {
+        token,
+        user_id,
       },
     });
   }
@@ -42,6 +53,16 @@ class User {
       data
     });
   }
+
+  // Método estático para actualizar el token de un usuario en la base de datos
+  static async updateUserToken(userId, token) {
+    return prisma.user.update({
+        where: { user_id: userId },
+        data: {
+            token: token,
+        },
+    });
+}
 
   // Método estático para leer todos los usuarios de la base de datos
   static async readAllUsers() {
