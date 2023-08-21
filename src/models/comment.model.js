@@ -13,11 +13,12 @@ class Comment {
     }
 
     // Métodos para crear, leer, actualizar y eliminar comentarios
-    static async createComment(comment_user_id, comment_post_id, content) {
+    static async createComment(comment_user_id, comment_post_id, parent_comment = null, content) {
         return await prisma.PostComment.create({
             data: {
                 comment_user_id: comment_user_id,
                 comment_post_id: comment_post_id,
+                parent_comment: parent_comment,
                 text: content
             }
         });

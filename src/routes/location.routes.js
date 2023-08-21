@@ -1,4 +1,7 @@
 import { Router } from "express";
+import multer from 'multer';
+import { dirname, extname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { 
     createLocation, 
     updateLocation,
@@ -21,6 +24,31 @@ import {
 
 // Importar metodos de verificacion de tokens
 import verifyToken from '../middlewares/authJWT.js';
+// Parsear metadata de archivos subidos
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Tipos de archivos permitidos
+const MIMETYPES = ['image/png', 'image/jpg', 'image/jpeg'];
+
+const multerUpload = multer({
+    storage: multer.diskStorage({
+        destination: join(__dirname, '../uploads/assets/locationImage'),
+        filename: (req, file, cb) => {
+            const fileExtension = extname(file.originalname);
+            const fileName = file.originalname.replace(fileExtension, '').toLowerCase().split(' ').join('-') + '-' + Date.now();
+            cb(null, fileName + fileExtension);
+        }
+    }),
+    fileFilter: (req, file, cb) => {
+        if (MIMETYPES.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Formato de archivo no permitido (solo .png, .jpg, .jpeg)'));
+        }
+    },
+    limits: {
+        fileSize: 1024 * 1024 * 5 // 5MB
+    }
+});
 
 const locationRouter = Router();
 
@@ -40,7 +68,7 @@ locationRouter.get('/type/find/id/:id', verifyToken, getLocationTypeById);
 locationRouter.delete('/type/delete/:id', verifyToken, deleteLocationTypeById);
 
 // CRUD de fotos de ubicación
-locationRouter.post('/photo/create', verifyToken, createLocationPhoto);
+locationRouter.post('/photo/create', verifyToken, multerUpload.single('image'), createLocationPhoto);
 locationRouter.get('/photo/find/all', verifyToken, readAllLocationPhotos);
 locationRouter.delete('/photo/delete/:id', verifyToken, deleteLocationPhotoById);
 

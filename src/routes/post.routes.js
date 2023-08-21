@@ -1,4 +1,8 @@
 import { Router } from "express";
+import multer from 'multer';
+import { dirname, join, extname } from 'path';
+import { fileURLToPath } from 'url';
+
 import {
     createPost,
     getAllPosts,
@@ -17,11 +21,37 @@ import {
 // Verificar token de usuario admin
 import verifyToken from "../middlewares/authJWT.js";
 
+// Parsear metadata de archivos subidos
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Tipos de archivos permitidos
+const MIMETYPES = ['image/png', 'image/jpg', 'image/jpeg'];
+
+const multerUpload = multer({
+    storage: multer.diskStorage({
+        destination: join(__dirname, '../uploads/assets/postImage'),
+        filename: (req, file, cb) => {
+            const fileExtension = extname(file.originalname);
+            const fileName = file.originalname.replace(fileExtension, '').toLowerCase().split(' ').join('-') + '-' + Date.now();
+            cb(null, fileName + fileExtension);
+        }
+    }),
+    fileFilter: (req, file, cb) => {
+        if (MIMETYPES.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Formato de archivo no permitido (solo .png, .jpg, .jpeg)'));
+        }
+    },
+    limits: {
+        fileSize: 1024 * 1024 * 5 // 5MB
+    }
+});
+
 const postRouter = Router();
 
 // CRUD DE POSTS
 // crear un nuevo post
-postRouter.post("/create", verifyToken, createPost);
+postRouter.post("/create", verifyToken, multerUpload.single('image'), createPost);
 // obtener todos los posts
 postRouter.get("/find/all", verifyToken, getAllPosts);
 // obtener un post por Id

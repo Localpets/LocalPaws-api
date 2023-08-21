@@ -18,6 +18,7 @@ model PostComment {
   text              String
   comment_post_id   Int
   comment_user_id   Int
+  parent_comment_id Int?
   createdAt         DateTime @default(now())
   @@index([comment_post_id], name: "post_comment_comment_post_id_foreign")
   @@index([comment_user_id], name: "post_comment_comment_user_id_foreign")

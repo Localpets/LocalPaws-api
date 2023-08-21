@@ -14,14 +14,13 @@ class Post {
     }
 
     // crear un nuevo post
-    static async createPost(text, image, category, likes, post_user_id ) {
+    static async createPost(text, image, category, post_user_id ) {
         try {
             const post = await prisma.post.create({
                 data: {
                     text,
                     image,
                     category,
-                    likes,
                     post_user_id
                 }
             });
