@@ -5,7 +5,10 @@ import Post from "../models/post.model.js";
  
 // crear un nuevo post
 export async function createPost(req, res = response) {
-    const { text, category, image, post_user_id } = req.body;
+    const { text, category, image } = req.body;
+
+    const post_user_id = parseInt(req.body.post_user_id)
+
     try {
         const post = await Post.createPost(text, category, image, post_user_id);
 
