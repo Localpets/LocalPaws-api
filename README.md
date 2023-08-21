@@ -1,6 +1,17 @@
 # Documentación de Rutas
 
 A continuación se detallan las rutas disponibles en esta API para diversas funcionalidades, incluyendo la gestión de usuarios, posts, comentarios, likes, seguidores, ubicaciones y más.
+## Ten en cuenta que: 
+- **La ruta base de la api es /api/:controlador**
+- Estos son los controladores que tenemos de momento:
+- this.authRoutePath = '/api/auth';
+- this.userRoutePath = '/api/user';
+- this.commentRoutePath = '/api/comment';
+- this.locationRoutePath = '/api/location';
+- this.postRoutePath = '/api/post';
+- this.likeRoutePath = '/api/like';
+- this.followRoutePath = '/api/follow';
+
 
 ## Rutas de Autenticación
 
