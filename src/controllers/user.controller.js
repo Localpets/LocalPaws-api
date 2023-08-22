@@ -48,7 +48,7 @@ export const userGetAll = async (req, res = response) => {
 // Actualizar usuario por Id
 export const userUpdate = (req, res = response) => {
     // Obtener el ID de la URL
-    const id = req.params.id;
+    const id = parseInt(req.params.user_id);
     // Obtener los datos del body
     const { fist_name, last_name, email, username, password, role } = req.body;
     // Actualizar el usuario en la base de datos
