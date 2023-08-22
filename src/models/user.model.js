@@ -84,9 +84,9 @@ class User {
   }
 
   // Método estático para borrar un usuario de la base de datos por su ID
-  static async deleteUserById(id) {
+  static async deleteUserById(user_id) {
     return prisma.user.delete({
-      where: { user_id: id },
+      where: { user_id: user_id },
     });
   }
 
