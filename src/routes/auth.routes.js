@@ -5,14 +5,10 @@ import {
     userLogout
 } from '../controllers/auth.controller.js';
 
-// Verificar token de usuario admin
-import verifyToken from "../middlewares/authJWT.js";
-
-
 const authRouter = Router();
 
-authRouter.post('/login', verifyToken, userLogin);
-authRouter.post('/register', verifyToken, userRegister);
-authRouter.post('/logout', verifyToken, userLogout);
+authRouter.post('/login', userLogin);
+authRouter.post('/register', userRegister);
+authRouter.post('/logout', userLogout);
 
 export default authRouter;

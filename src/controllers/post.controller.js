@@ -162,10 +162,9 @@ export async function getPostsByCategory(req, res = response) {
 
 // crear categoria de un post
 export async function createPostCategory(req, res = response) {
-    const postId = parseInt(req.params.postId);
     const { category } = req.body;
     try {
-        const post = await Post.createPostCategory(postId, category);
+        const post = await Post.createCategory(category);
         return res.status(201).json({
             msg: "Categoria de post creada correctamente",
             ok: true,
