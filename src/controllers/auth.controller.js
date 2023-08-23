@@ -24,7 +24,7 @@ export const userRegister = async (req, res) => {
             msg: 'Un usuario ya existe con ese email'
         })
     } else if (q2) {
-        return res.status(400).json({
+        return res.status(405).json({
             ok: false,
             msg: 'Un usuario ya existe con ese username'
         })
@@ -38,6 +38,8 @@ export const userRegister = async (req, res) => {
 
     // Validar el tipo de usuario
     const type = req.body.type || 'USER'
+    // Obtener el username 
+    const username = '@' + req.body.username || req.body.email.split('@')[0];
     // Crear el token de usuario y guardarlo en la base de datos con el id del usuario creado si es ADMIN
     let userToken = 'no token provided'; // Inicializar como 'no token provided'
 
@@ -47,7 +49,7 @@ export const userRegister = async (req, res) => {
             req.body.phone_number,
             req.body.first_name,
             req.body.last_name,
-            req.body.username,
+            username,
             req.body.email,
             hashedPassword,
             type,

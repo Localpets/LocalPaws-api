@@ -114,7 +114,7 @@ model LocationReview {
 // user
 model User {
   user_id           Int     @id @default(autoincrement())
-  thumbnail         String @default("http://localhost:3000/icons/cat.png")
+  thumbnail         String @default("http://localhost:8080/icons/cat.png")
   phone_number      String
   first_name        String
   last_name         String
