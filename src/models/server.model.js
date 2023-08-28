@@ -3,6 +3,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
+import {v2 as cloudinary} from 'cloudinary';
 
 // Rutas de la API
 import authRouter from '../routes/auth.routes.js';
@@ -52,6 +53,13 @@ class Server {
 
         // Cookies
         this.app.use(cookieParser());
+
+        // Cloudinary
+        cloudinary.config({ 
+            cloud_name: 'djm7rshns', 
+            api_key: '416334371141741', 
+            api_secret: process.env.CLOUDINARY_SECRET_KEY 
+        });
     }
 
     routes() {
