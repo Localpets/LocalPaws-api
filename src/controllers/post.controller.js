@@ -46,7 +46,7 @@ export async function createPost(req, res = response) {
   
         // Subir imagen a Cloudinary
         const result = await cloudinary.uploader.upload(req.file.path, {
-          folder: 'postImages'
+          folder: `postImages/${Date.now()}`
         });
   
         const { text, category } = req.body;
