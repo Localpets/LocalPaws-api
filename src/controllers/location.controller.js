@@ -4,7 +4,6 @@ import { response } from "express";
 // importar el modelo de ubicación
 
 import Location from "../models/location.model.js";
-import { parse } from "path";
 
 export const createLocation = async (req, res = response) => {
     // Extraer el body de la petición
