@@ -9,7 +9,7 @@ import {
     updateNotificationById,
     deleteNotificationById,
     deleteNotificationsByUserId
-} from "../controllers/notification.controller";
+} from "../controllers/notification.controller.js";
 
 // Importar el middleware de autenticación
 import verifyToken from "../middlewares/authJWT";
