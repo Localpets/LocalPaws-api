@@ -4,8 +4,8 @@ import {
     readLikeById,
     readAllLikesByUserId,
     readAllLikesByPostId,
-    deleteLike } from '../controllers/like.controller.js';
-
+    deleteLike 
+} from '../controllers/like.controller.js';
 
 const likeRouter = Router();
 

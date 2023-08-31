@@ -4,24 +4,17 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient()
 
 class Post {
-    constructor(text, image, category, likes, post_user_id ) {
-        this.userId = userId;
-        this.text = text;
-        this.image = image;
-        this.category = category;
-        this.likes = likes;
-        this.post_user_id = post_user_id;
+    constructor() {
     }
 
     // crear un nuevo post
-    static async createPost(text, image, category, likes, post_user_id ) {
+    static async createPost(text, category, image, post_user_id ) {
         try {
             const post = await prisma.post.create({
                 data: {
                     text,
-                    image,
                     category,
-                    likes,
+                    image,
                     post_user_id
                 }
             });
@@ -118,11 +111,21 @@ class Post {
             });
 
             const postsRaw = await prisma.post.findMany();
-
+            
             const posts = postsRaw.filter((post) => {
                 return userFollowsIds.includes(post.post_user_id);
             });
 
+            // Traer tambien los posts del usuario
+            const userPosts = await prisma.post.findMany({
+                where: {
+                    post_user_id: userId
+                }
+            });
+
+            // Concatenar los posts del usuario con los posts de los follows
+            posts.push(...userPosts);
+            
             return posts;
         } catch (error) {
             console.error(error);

@@ -48,7 +48,7 @@ export const userGetAll = async (req, res = response) => {
 // Actualizar usuario por Id
 export const userUpdate = (req, res = response) => {
     // Obtener el ID de la URL
-    const id = req.params.id;
+    const id = parseInt(req.params.user_id);
     // Obtener los datos del body
     const { fist_name, last_name, email, username, password, role } = req.body;
     // Actualizar el usuario en la base de datos
@@ -64,9 +64,10 @@ export const userUpdate = (req, res = response) => {
 // Eliminar usuario por Id
 export const userDelete = (req, res = response) => {
     // Obtener el ID de la URL
-    const id = req.params.id;
+    const user_id = parseInt(req.params.user_id);
+    console.log(user_id)
     // Eliminar el usuario en la base de datos
-    const user = User.deleteUserById(id);
+    const user = User.deleteUserById(user_id);
     // Responder con el usuario eliminado
     res.json({
         msg: 'DELETE API - controlador: Usuario eliminado correctamente',

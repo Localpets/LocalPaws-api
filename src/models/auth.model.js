@@ -32,6 +32,18 @@ class Auth {
     }
   }
 
+  static async validateUserNameAlreadyExists(username) {
+    const q = await prisma.user.findFirst({
+      where: {
+        username: username
+      }
+    });
+
+    if (q) {
+        return true;
+    }
+  }
+
   // Método para crear loguear al usuario
   static async findUser(email, password) {
 
