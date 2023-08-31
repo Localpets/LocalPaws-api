@@ -1,7 +1,7 @@
 // Importar response de express para tipar el response de los métodos
 import { response } from "express";
 // Importar el modelo de notificación
-import Notification from "../models/notification.model";
+import Notification from "../models/notification.model.js";
 
 export const createNotification = async (req, res = response) => {
     try {
