@@ -12,7 +12,7 @@ import {
 } from "../controllers/notification.controller.js";
 
 // Importar el middleware de autenticación
-import verifyToken from "../middlewares/authJWT";
+import verifyToken from "../middlewares/authJWT.js";
 
 // Iniciar el router
 
