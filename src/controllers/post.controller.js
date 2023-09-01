@@ -43,11 +43,25 @@ export async function createPost(req, res = response) {
             msg: err.message
           });
         }
-  
-        // Subir imagen a Cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path, {
-          folder: `postImages/${Date.now()}`
-        });
+        
+        // validar si viene la imagen
+        if (!req.file) {
+
+          const { text, category } = req.body;
+          const post_user_id = parseInt(req.body.post_user_id);
+    
+          // Crear el post con la URL de la imagen de Cloudinary
+          const post = await Post.createPost(text, category, null, post_user_id);
+
+          return res.status(201).json({
+            msg: 'Post creado correctamente',
+            ok: true,
+            post
+          });
+        }
+
+        // Subir la imagen a Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path);
   
         const { text, category } = req.body;
         const post_user_id = parseInt(req.body.post_user_id);

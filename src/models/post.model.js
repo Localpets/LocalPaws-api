@@ -9,6 +9,11 @@ class Post {
 
     // crear un nuevo post
     static async createPost(text, category, image, post_user_id ) {
+    
+        if (!image) {
+            image = 'no image'
+        }
+
         try {
             const post = await prisma.post.create({
                 data: {
