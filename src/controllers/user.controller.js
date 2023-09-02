@@ -50,9 +50,9 @@ export const userUpdate = (req, res = response) => {
     // Obtener el ID de la URL
     const id = parseInt(req.params.user_id);
     // Obtener los datos del body
-    const { fist_name, last_name, email, username, password, role } = req.body;
+    const { fist_name, last_name, email, username, gender ,type } = req.body;
     // Actualizar el usuario en la base de datos
-    const user = User.updateUser(id, { fist_name, last_name, email, username, password, role });
+    const user = User.updateUser(id, { fist_name, last_name, email, username, gender, type });
     // Responder con el usuario actualizado
     res.json({
         msg: 'PUT API - controlador: Usuario actualizado correctamente',
