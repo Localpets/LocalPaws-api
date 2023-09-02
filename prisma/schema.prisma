@@ -166,6 +166,7 @@ model Message {
   receiver_id       Int
   text              String
   createdAt         DateTime @default(now())
+  edited            Int  @default(0)
   @@index([sender_id], name: "message_sender_id_foreign")
   @@index([receiver_id], name: "message_receiver_id_foreign")
 }
@@ -174,6 +175,7 @@ model Message_like {
   id                Int     @id @default(autoincrement())
   message_id        Int
   user_id           Int
+  Reaction          String @default("")
   @@index([message_id], name: "message_like_message_id_foreign")
   @@index([user_id], name: "message_like_user_id_foreign")
 }
