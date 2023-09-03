@@ -8,6 +8,7 @@ import { io } from "socket.io-client";
 // Crear una nueva instancia de PrismaClient
 const prisma = new PrismaClient();
 
+const port = process.env.PORT;
 // Crear la clase Message, que se encargará de manejar los mensajes de los usuarios
 class Message {
     constructor(sender_id, receiver_id, content) {
@@ -17,17 +18,18 @@ class Message {
     }
 
 // Métodos para crear, leer, actualizar y eliminar comentarios
-    static async createMessage(sender_id, receiver_id, content) {
+    static async createMessage(sender_id, receiver_id, content, room) {
         const message = await prisma.message.create({
             data: {
                 sender_id,
                 receiver_id,
-                text: content
+                text: content,
+                room: room
             }
         });
 
         // Emitir el mensaje a los usuarios correspondientes usando Socket.IO
-        const socket = io('http://localhost:7000'); // Cambia esto por la URL de tu servidor
+        const socket = io(`http://localhost:${port}`); // Cambia esto por la URL de tu servidor
         socket.emit('newMessage', message); // 'newMessage' es el evento que escucharán tus clientes
 
         return message;
@@ -58,7 +60,7 @@ class Message {
             data: { text: newText, edited: edited }
         });
 
-        const socket = io('http://localhost:7000');
+        const socket = io(`http://localhost:${port}`);
         socket.emit('messageUpdated', updatedMessage); // Emitir evento 'messageUpdated'
 
         return updatedMessage;
@@ -69,7 +71,7 @@ class Message {
             where: { id: messageId }
         });
 
-        const socket = io('http://localhost:7000');
+        const socket = io(`http://localhost:${port}`);
         socket.emit('messageDeleted', deletedMessage.id); // Emitir evento 'messageDeleted'
 
         return deletedMessage;
@@ -84,7 +86,7 @@ class Message {
             }
         });
 
-        const socket = io('http://localhost:7000');
+        const socket = io(`http://localhost:${port}`);
         socket.emit('reactionAdded', newReaction); // Emitir evento 'reactionAdded'
 
         return newReaction;
@@ -101,7 +103,7 @@ class Message {
             where: { message_id: messageId}
         });
 
-        const socket = io('http://localhost:7000');
+        const socket = io(`http://localhost:${port}`);
         socket.emit('reactionRemoved', { messageId}); // Emitir evento 'reactionRemoved'
 
         return { messageId};
