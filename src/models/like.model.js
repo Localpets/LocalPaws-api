@@ -91,11 +91,13 @@ class Like {
     }
 
     // Eliminar un like
-    static async deleteLikeById(like_id) {
+    static async deleteLikeById(post_id, user_id) {
+        // '/delete/:post_id/:user_id'
         try {
-            const deletedLike = await prisma.like.delete({
+            const deletedLike = await prisma.like.deleteMany({
                 where: {
-                    like_id: parseInt(like_id)
+                    post_id: parseInt(post_id),
+                    user_id: parseInt(user_id)
                 }
             });
             return deletedLike;

@@ -10,8 +10,8 @@ import Like from "../models/like.model.js";
 const createLike = async (req, res = response) => {
     try {
         const { like_type } = req.body;
-        const { user_id } = parseInt(req.body.user_id);
-        const { post_id } = parseInt(req.body.post_id);
+        const user_id = parseInt(req.body.user_id);
+        const post_id = parseInt(req.body.post_id);
 
         const newLike = await Like.createLike(like_type, user_id, post_id);
         res.status(201).json({
@@ -69,7 +69,7 @@ const readAllLikesByUserId = async (req, res = response) => {
 // Obtener todos los likes de un post
 const readAllLikesByPostId = async (req, res = response) => {
     try {
-        const { post_id } = parseInt(req.params);
+        const post_id = parseInt(req.params.post_id);
         const likes = await Like.readAllLikesByPostId(post_id);
         res.status(200).json({
             ok: true,
@@ -87,12 +87,14 @@ const readAllLikesByPostId = async (req, res = response) => {
 
 // Eliminar un like
 const deleteLike = async (req, res = response) => {
+    // '/delete/:post_id/:user_id'
     try {
-        const { like_id } = parseInt(req.params);
-        await Like.deleteLike(like_id);
+        const { post_id, user_id } = req.params;
+        const deletedLike = await Like.deleteLikeById(post_id, user_id);
         res.status(200).json({
             ok: true,
-            msg: 'Like eliminado correctamente'
+            msg: 'Like eliminado correctamente',
+            deletedLike
         });
     } catch (error) {
         console.error(error);

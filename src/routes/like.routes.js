@@ -10,10 +10,10 @@ import {
 const likeRouter = Router();
 
 // Definir las rutas de like
-likeRouter.post('/:like_type/:user_id/:post_id', createLike);
-likeRouter.get('/:like_id', readLikeById);
+likeRouter.post('/create/', createLike);
+likeRouter.get('/find/id/:like_id', readLikeById);
 likeRouter.get('/user/:user_id', readAllLikesByUserId);
 likeRouter.get('/post/:post_id', readAllLikesByPostId);
-likeRouter.delete('/:like_id', deleteLike);
+likeRouter.delete('/delete/:post_id/:user_id', deleteLike);
 
 export default likeRouter;

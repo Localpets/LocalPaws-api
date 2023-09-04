@@ -30,7 +30,6 @@ model Post {
   text              String
   image             String  @default("no image")
   category          String
-  likes             Int @default(0)
   post_user_id      Int
   createdAt         DateTime @default(now())
   @@index([post_user_id], name: "post_post_user_id_foreign")
