@@ -9,8 +9,8 @@ class Follow {
         this.followedId = followedId;
     }
 
-    static startFollowing(followerId, followedId) {
-        return prisma.follow.create({
+    static async startFollowing(followerId, followedId) {
+        return await prisma.follow.create({
             data: {
                 followerId: followerId,
                 followedId: followedId
@@ -18,8 +18,8 @@ class Follow {
         });
     }
 
-    static stopFollowing(followerId, followedId) {
-        return prisma.follow.delete({
+    static async stopFollowing(followerId, followedId) {
+        return await prisma.follow.delete({
             where: {
                 followerId_followedId: {
                     followerId: followerId,
@@ -29,32 +29,47 @@ class Follow {
         });
     }
 
-    static getFollowersByUserId(userId) {
-        return prisma.follow.findMany({
+    static async getFollowersByUserId(userId) {
+        const res = await prisma.follow.findMany({
             where: {
                 followedId: userId
             }
         });
+
+        const resUsersIds = res.map((follow) => {
+            return follow.followerId;
+        });
+
+        const usersInfo = await prisma.user.findMany({
+            where: {
+                user_id: {
+                    in: resUsersIds
+                }
+            }
+        });
+
+        return usersInfo
+
     }
 
-    static getFollowedUsersByUserId(userId) {
-        return prisma.follow.findMany({
+    static async getFollowedUsersByUserId(userId) {
+        return await prisma.follow.findMany({
             where: {
                 followerId: userId
             }
         });
     }
 
-    static getFollowersCountByUserId(userId) {
-        return prisma.follow.count({
+    static async getFollowersCountByUserId(userId) {
+        return await prisma.follow.count({
             where: {
                 followedId: userId
             }
         });
     }
 
-    static getFollowedUsersCountByUserId(userId) {
-        return prisma.follow.count({
+    static async getFollowedUsersCountByUserId(userId) {
+        return await prisma.follow.count({
             where: {
                 followerId: userId
             }

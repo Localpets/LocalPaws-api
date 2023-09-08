@@ -105,9 +105,10 @@ class Post {
     // obtener post por los follows de un usuario (feed)
     static async getPostsByFollows(userId) {
         try {
+            const id = userId;
             const userFollows = await prisma.follow.findMany({
                 where: {
-                    followerId: userId
+                    followerId: parseInt(id)
                 }
             })
 
@@ -124,7 +125,7 @@ class Post {
             // Traer tambien los posts del usuario
             const userPosts = await prisma.post.findMany({
                 where: {
-                    post_user_id: userId
+                    post_user_id: id
                 }
             });
 

@@ -198,19 +198,23 @@ export async function deletePost(req, res = response) {
 export async function getPostsByFollows(req, res = response) {
   const userId = parseInt(req.params.userId);
     
-  try {
-    const posts = await Post.getPostsByFollows(userId);
-    return res.status(200).json({
-      msg: "Posts obtenidos correctamente por follows de usuario",
-      ok: true,
-      posts,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      ok: false,
-      msg: "Error interno del servidor",
-    });
+  if (!userId) {
+    return 
+  } else {
+    try {
+      const posts = await Post.getPostsByFollows(userId);
+      return res.status(200).json({
+        msg: "Posts obtenidos correctamente por follows de usuario",
+        ok: true,
+        posts,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        ok: false,
+        msg: "Error interno del servidor",
+      });
+    }
   }
 }
 
