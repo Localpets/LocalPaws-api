@@ -18,11 +18,11 @@ const followRouter = Router();
 
 
 // Definir las rutas de follow
-followRouter.post('/:followerId/:followedId', verifyToken, createFollow);
-followRouter.get('/:follow_id', verifyToken, readFollowById);
-followRouter.get('/user/:followerId', verifyToken, readAllFollowsByUserId);
-followRouter.get('/followed/:followedId', verifyToken, readAllFollowsByFollowedId);
-followRouter.delete('/:followerId/:followedId', verifyToken, deleteFollow);
+followRouter.post('/create', verifyToken, createFollow);
+followRouter.get('/find/:follow_id', verifyToken, readFollowById);
+followRouter.get('/find/user/:followerId', verifyToken, readAllFollowsByUserId);
+followRouter.get('/find/followed/:followedId', verifyToken, readAllFollowsByFollowedId);
+followRouter.delete('/delete/:followerId/:followedId', verifyToken, deleteFollow);
 
 // exportar el Router
 export default followRouter;

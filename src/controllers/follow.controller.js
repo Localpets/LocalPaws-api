@@ -4,8 +4,8 @@ import Follow from '../models/follow.model.js';
 // Crear un nuevo follow
 export const createFollow = async (req, res) => {
     try {
-        const followerId = parseInt(req.params.followerId);
-        const followedId = parseInt(req.params.followedId);
+        const followerId = parseInt(req.body.followerId);
+        const followedId = parseInt(req.body.followedId);
         const follow = await Follow.startFollowing(followerId, followedId);
         res.status(201).json({
             msg: 'POST API - controlador: Crear un nuevo follow',
