@@ -163,7 +163,7 @@ model Message {
   id                Int     @id @default(autoincrement())
   sender_id         Int
   receiver_id       Int
-  text              String
+  text              String @db.VarChar(500)
   createdAt         DateTime @default(now())
   edited            Int  @default(0)
   room              String
@@ -183,6 +183,7 @@ model Message_like {
 model Notification {
   id                Int     @id @default(autoincrement())
   user_id           Int
+  user_received_id  Int
   text              String
   type              String
   createdAt         DateTime @default(now())
