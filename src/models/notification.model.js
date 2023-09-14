@@ -31,13 +31,43 @@ class Notification {
         });
     }
 
-    static async getNotificationsByUserReceivedId(user_received_id) {
-        return await prisma.notification.findMany({
+    static async getNotificationsByUserReceivedId(user_received_id) {        
+        const res = await prisma.notification.findMany({
             where: {
                 user_received_id: parseInt(user_received_id)
             }
         });
+    
+        // Use Promise.all to await all async operations
+        const data = await Promise.all(res.map(async (notification) => {
+            const user = await prisma.user.findUnique({
+                where: {
+                    user_id: notification.user_id
+                }
+            });
+    
+            const { username, first_name, last_name, thumbnail } = user;
+    
+            const userWithoutPassword = {
+                username,
+                first_name,
+                last_name,
+                thumbnail
+            };
+    
+            const notificationWithUser = {
+                ...notification,
+                user: userWithoutPassword
+            };
+    
+            return {
+                ...notificationWithUser
+            };
+        }));
+    
+        return data;
     }
+    
 
     static async updateNotificationById(id, notification) {
         return await prisma.notification.update({

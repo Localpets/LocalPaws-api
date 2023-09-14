@@ -46,8 +46,12 @@ export const getNotificationsByUserSenderId = async (req, res = response) => {
 export const getNotificationsByUserId = async (req, res = response) => {
     try {
         const userId = parseInt(req.params.user_id);
-        const notification = await Notification.getNotificationsByUserId(userId);
-        res.status(200).json(notification);
+
+        const notifications = await Notification.getNotificationsByUserReceivedId(userId);
+        res.status(200).json({
+            message: "Notifications found",
+            notifications
+        });
     } catch (error) {
         res.status(404).json({
             message: "Notification not found",
