@@ -35,11 +35,11 @@ class Follow {
                 followedId: userId
             }
         });
-
+    
         const resUsersIds = res.map((follow) => {
             return follow.followerId;
         });
-
+    
         const usersInfo = await prisma.user.findMany({
             where: {
                 user_id: {
@@ -47,10 +47,29 @@ class Follow {
                 }
             }
         });
-
-        return usersInfo
-
+    
+        // Create a new array with properties removed
+        const usersWithoutPassword = usersInfo.map((user) => {
+            const {
+                user_id,
+                username,
+                first_name,
+                last_name,
+                thumbnail
+            } = user;
+    
+            return {
+                user_id,
+                username,
+                first_name,
+                last_name,
+                thumbnail
+            };
+        });
+    
+        return usersWithoutPassword;
     }
+    
 
     static async getFollowedUsersByUserId(userId) {
         return await prisma.follow.findMany({
