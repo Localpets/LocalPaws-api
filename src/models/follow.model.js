@@ -21,10 +21,8 @@ class Follow {
     static async stopFollowing(followerId, followedId) {
         return await prisma.follow.delete({
             where: {
-                followerId_followedId: {
-                    followerId: followerId,
-                    followedId: followedId
-                }
+                followerId: followerId,
+                followedId: followedId
             }
         });
     }
