@@ -22,7 +22,7 @@ followRouter.post('/create', verifyToken, createFollow);
 followRouter.get('/find/:follow_id', verifyToken, readFollowById);
 followRouter.get('/find/user/:followerId', verifyToken, readAllFollowsByUserId);
 followRouter.get('/find/followed/:followedId', verifyToken, readAllFollowsByFollowedId);
-followRouter.delete('/delete/:followerId/:followedId', verifyToken, deleteFollow);
+followRouter.delete('/delete/:followId', verifyToken, deleteFollow);
 
 // exportar el Router
 export default followRouter;
