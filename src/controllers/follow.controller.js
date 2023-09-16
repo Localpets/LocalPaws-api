@@ -61,15 +61,15 @@ export const readAllFollowsByFollowedId = async (req, res) => {
 // detener un follow
 export const deleteFollow = async (req, res) => {
     try {
-        const followId = parseInt(req.params.followId);
-        const follow = await Follow.stopFollowing(followId);
+        const followerId = parseInt(req.params.followerId);
+        const followedId = parseInt(req.params.followedId);
+        const result = await Follow.stopFollowing(followerId, followedId);
+        
         res.status(200).json({
-            msg: 'DELETE API - controlador: Eliminado un follow',
-            follow
+            msg: 'DELETE API - controlador: Eliminado follow',
+            result
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 }
-
-
