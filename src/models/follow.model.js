@@ -32,12 +32,12 @@ class Follow {
     static async getFollowersByUserId(userId) {
         const res = await prisma.follow.findMany({
             where: {
-                followedId: userId
+                followerId: userId
             }
         });
     
         const resUsersIds = res.map((follow) => {
-            return follow.followerId;
+            return follow.followedId;
         });
     
         const usersInfo = await prisma.user.findMany({
