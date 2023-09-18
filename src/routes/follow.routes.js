@@ -7,7 +7,9 @@ import {
     readFollowById,
     readAllFollowsByUserId,
     readAllFollowsByFollowedId,
-    deleteFollow
+    deleteFollow,
+    getFollowersCountByUserId,
+    getFollowedUsersCountByUserId
 } from '../controllers/follow.controller.js';
 
 // Verificar token de usuario admin
@@ -23,6 +25,8 @@ followRouter.get('/find/:follow_id', verifyToken, readFollowById);
 followRouter.get('/find/user/:followerId', verifyToken, readAllFollowsByUserId);
 followRouter.get('/find/followed/:followedId', verifyToken, readAllFollowsByFollowedId);
 followRouter.delete('/delete/:followerId/:followedId', verifyToken, deleteFollow);
+followRouter.get('/followers/count/:userId', verifyToken, getFollowersCountByUserId);
+followRouter.get('/followed/count/:userId', verifyToken, getFollowedUsersCountByUserId);
 
 // exportar el Router
 export default followRouter;
