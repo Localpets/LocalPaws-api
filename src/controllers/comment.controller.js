@@ -44,13 +44,15 @@ export async function commentGetAll(req, res) {
 // Funcion para crear un comentario
 
 export async function commentPost(req, res) {
-    const comment_post_id = parseInt(req.params.comment_post_id);
-    const comment_user_id = parseInt(req.params.comment_user_id);
+    const comment_post_id = parseInt(req.body.comment_post_id);
+    const comment_user_id = parseInt(req.body.comment_user_id);
+    const parent_comment_id = req.body.parent_comment_id;
 
     try {
         const comment = await Comment.createComment(
         comment_user_id,
         comment_post_id,
+        parent_comment_id,
         req.body.text
         );
         res.status(200).json({

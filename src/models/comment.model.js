@@ -13,15 +13,37 @@ class Comment {
     }
 
     // Métodos para crear, leer, actualizar y eliminar comentarios
-    static async createComment(comment_user_id, comment_post_id, parent_comment = null, content) {
-        return await prisma.PostComment.create({
+    static async createComment(comment_user_id, comment_post_id, parent_comment_id = null, content) {
+        const res =  await prisma.PostComment.create({
             data: {
                 comment_user_id: comment_user_id,
                 comment_post_id: comment_post_id,
-                parent_comment: parent_comment,
+                parent_comment_id: parent_comment_id,
                 text: content
             }
         });
+
+        // find user comment info 
+        const user = await prisma.User.findUnique({
+            where: {
+                user_id: comment_user_id
+            }
+        });
+
+        // return comment with user info
+
+        return {
+            comment_id: res.comment_id,
+            comment_user_id: res.comment_user_id,
+            comment_post_id: res.comment_post_id,
+            parent_comment_id: res.parent_comment_id,
+            text: res.text,
+            user: {
+                user_id: user.user_id,
+                username: user.username,
+                avatar: user.thumbnail
+            }
+        }
     }
     // Funcion para obtener un comentario por su id
     static async readCommentById(comment_id) {
