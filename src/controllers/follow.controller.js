@@ -73,3 +73,31 @@ export const deleteFollow = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+// Obtener el número de seguidores de un usuario por su ID
+export const getFollowersCountByUserId = async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+        const followersCount = await Follow.getFollowersCountByUserId(userId);
+        res.status(200).json({
+            msg: 'GET API - controlador: Número de seguidores de un usuario',
+            followersCount
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Obtener el número de seguidos por un usuario por su ID
+export const getFollowedUsersCountByUserId = async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+        const followedCount = await Follow.getFollowedUsersCountByUserId(userId);
+        res.status(200).json({
+            msg: 'GET API - controlador: Número de seguidos por un usuario',
+            followedCount
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
