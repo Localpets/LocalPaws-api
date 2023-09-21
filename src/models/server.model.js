@@ -63,37 +63,78 @@ class Server {
     // Configurar eventos de socket en el servidor
     configureSocketEvents = () => {
         this.io.on('connection', (socket) => {
-            socket.on('newMessage', (message) => {
-                console.log('Nuevo mensaje recibido:', message);
-                // Emitir el mensaje a todos los usuarios conectados, incluido el emisor
-                this.io.emit('newMessage', message);
-            });
+          // Maneja la lógica para identificar al cliente, por ejemplo, usando su ID de usuario
+          const userId = socket.handshake.query.userId;      
+          // Verifica si ya existe una conexión para este usuario
+          if (!this.activeConnections) {
+            this.activeConnections = {}; // Inicializa el objeto si no existe
+          }
+      
+          if (this.activeConnections[userId]) {
+            // Cerrar la nueva conexión
+            socket.disconnect();
+          } else {
+            // Almacena la conexión activa para este usuario
+            this.activeConnections[userId] = socket;
+            console.log(`Usuario ${userId} conectado al socket`)
+      
+            // Agregar un campo "userId" al objeto socket para futuras referencias
+            socket.userId = userId;
+                
+                socket.on('joinRoom', (roomName) => {
+                    socket.join(roomName);
+                    console.log(`Usuario ${userId} se unió a la sala: ${roomName}`);
+                });
+                
+                socket.on('leaveRoom', (currentRoomName) => {
+                    socket.leave(currentRoomName)
+                    console.log(`Usuario ${userId} salio de la sala: ${currentRoomName}`);
+                })
+            
+                // Enviar un mensaje a la sala
+               // Enviar un mensaje a la sala
+                socket.on('sendMessage', (message) => {
+                    this.io.to(message.room).emit('newMessage', message);
+                    console.log(`Mensaje: ${message.text} sala: ${message.room} Id del mensaje: ${message.messageId} receptor: ${message.receiver_id} fecha: ${message.createdAt}`);
+                });
+  
     
-            socket.on('messageUpdated', (updatedMessage) => {
-                console.log('Mensaje actualizado:', updatedMessage);
-                // Emitir el mensaje actualizado a todos los usuarios conectados, incluido el emisor
-                this.io.emit('messageUpdated', updatedMessage);
-            });
-    
-            socket.on('messageDeleted', (messageId) => {
-                console.log('Mensaje eliminado:', messageId);
-                // Emitir el ID del mensaje eliminado a todos los usuarios conectados, incluido el emisor
-                this.io.emit('messageDeleted', messageId);
-            });
-    
-            socket.on('reactionAdded', (newReaction) => {
-                console.log('Nueva reacción:', newReaction);
-                // Emitir la nueva reacción a todos los usuarios conectados, incluido el emisor
-                this.io.emit('reactionAdded', newReaction);
-            });
-    
-            socket.on('reactionRemoved', ({ messageId, userId }) => {
-                console.log('Reacción eliminada:', messageId, userId);
-                // Emitir los IDs de mensaje y usuario a todos los usuarios conectados, incluido el emisor
-                this.io.emit('reactionRemoved', { messageId, userId });
-            });
+                // Editar un mensaje en la sala
+                socket.on('editMessage', ({ roomName, messageId, newText }) => {
+                    // Implementa la lógica para editar el mensaje en la sala
+                    // y luego emite un evento a todos los clientes en la sala
+                    this.io.to(roomName).emit('editedMessage', { messageId, newText });
+                });
+            
+                // Eliminar un mensaje en la sala
+                socket.on('deleteMessage', ({ roomName, messageId }) => {
+                    // Implementa la lógica para eliminar el mensaje en la sala
+                    // y luego emite un evento a todos los clientes en la sala
+                    this.io.to(roomName).emit('deletedMessage', messageId);
+                });
+            
+                // Agregar una reacción a un mensaje en la sala
+                socket.on('addReaction', ({ roomName, messageId, reaction }) => {
+                    // Implementa la lógica para agregar la reacción al mensaje en la sala
+                    // y luego emite un evento a todos los clientes en la sala
+                    this.io.to(roomName).emit('addedReaction', { messageId, reaction });
+                });
+            
+                // Eliminar una reacción de un mensaje en la sala
+                socket.on('removeReaction', ({ roomName, messageId, reaction }) => {
+                    // Implementa la lógica para eliminar la reacción del mensaje en la sala
+                    // y luego emite un evento a todos los clientes en la sala
+                    this.io.to(roomName).emit('removedReaction', { messageId, reaction });
+                });
+            
+                socket.on('disconnect', () => {
+                    console.log(`Cliente con ID ${userId} desconectado.`);
+                    delete this.activeConnections[userId];
+                });
+            }
         });
-    };
+        }
+
 
     middlewares() {
         // Middleware de CORS
