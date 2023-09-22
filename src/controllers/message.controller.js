@@ -1,11 +1,6 @@
 // importar el modelo del mensaje
 import Message from "../models/message.model.js";
 
-import { io } from "socket.io-client"; // Importa el cliente de Socket.IO
-
-const port = process.env.PORT;
-const socket = io(`http://localhost:${port}`); // Cambia la URL por la de tu servidor
-
 export async function messageGetById(req, res) {
     try {
         const id = parseInt(req.params.message_id);
@@ -145,6 +140,22 @@ export async function getMessagesReaction(req, res) {
     const { message_id } = req.params;
     try {
         const reactions = await Message.GetMessagesReaction(parseInt(message_id));
+        res.status(200).json({
+            ok: true,
+            reactions: reactions
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: "Error al obtener las reacciones del mensaje"
+        });
+    }
+}
+
+export async function getAllMessagesReaction(req, res) {
+    try {
+        const reactions = await Message.GetMessagesReaction();
         res.status(200).json({
             ok: true,
             reactions: reactions

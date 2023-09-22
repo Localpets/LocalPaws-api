@@ -7,6 +7,7 @@ import {
     messageDelete,
     messageAddReaction,
     getMessagesReaction,
+    getAllMessagesReaction,
     messageRemoveReaction
 } from '../controllers/message.controller.js';
 
@@ -20,6 +21,7 @@ messageRouter.delete('/delete/:message_id', messageDelete);
 messageRouter.post('/add-reaction/:message_id', messageAddReaction);
 messageRouter.get('/find/reaction/:message_id', getMessagesReaction);
 messageRouter.delete('/remove-reaction/:message_id', messageRemoveReaction);
+messageRouter.get('/find/reactions/all', getAllMessagesReaction);
 
 
 export default messageRouter;

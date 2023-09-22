@@ -92,32 +92,24 @@ class Server {
                 })
             
                 // Enviar un mensaje a la sala
-               // Enviar un mensaje a la sala
                 socket.on('sendMessage', (message) => {
                     this.io.to(message.room).emit('newMessage', message);
-                    console.log(`Mensaje: ${message.text} sala: ${message.room} Id del mensaje: ${message.messageId} receptor: ${message.receiver_id} fecha: ${message.createdAt}`);
                 });
   
     
                 // Editar un mensaje en la sala
-                socket.on('editMessage', ({ roomName, messageId, newText }) => {
-                    // Implementa la lógica para editar el mensaje en la sala
-                    // y luego emite un evento a todos los clientes en la sala
-                    this.io.to(roomName).emit('editedMessage', { messageId, newText });
+                socket.on('editMessage', (message) => {
+                    this.io.to(message.room).emit('editedMessage', message);
                 });
             
                 // Eliminar un mensaje en la sala
-                socket.on('deleteMessage', ({ roomName, messageId }) => {
-                    // Implementa la lógica para eliminar el mensaje en la sala
-                    // y luego emite un evento a todos los clientes en la sala
-                    this.io.to(roomName).emit('deletedMessage', messageId);
+                socket.on('deleteMessage', (message) => {
+                    this.io.to(message.room).emit('deletedMessage', message.id);
                 });
             
                 // Agregar una reacción a un mensaje en la sala
-                socket.on('addReaction', ({ roomName, messageId, reaction }) => {
-                    // Implementa la lógica para agregar la reacción al mensaje en la sala
-                    // y luego emite un evento a todos los clientes en la sala
-                    this.io.to(roomName).emit('addedReaction', { messageId, reaction });
+                socket.on('addReaction', ( reaction ) => {
+                    this.io.to(reaction.room).emit('addedReaction', reaction);
                 });
             
                 // Eliminar una reacción de un mensaje en la sala
