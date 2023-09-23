@@ -72,11 +72,13 @@ class Message {
         })
     }
     
-    static async removeReaction(messageId) {
-        await prisma.message_like.deleteMany({
-            where: { message_id: messageId}
-        })
-    }
+    static async removeReaction(id) {
+        await prisma.message_like.delete({
+            where: { id: id }
+        });
+    }    
+    
+
 
     static async GetAllMessagesReaction() {
         return prisma.message_like.findMany(); 

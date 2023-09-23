@@ -118,10 +118,9 @@ export async function messageAddReaction(req, res) {
 }
 
 export async function messageRemoveReaction(req, res) {
-    const { message_id } = req.params;
-    const { Reaction } = req.body;
+    const { reaction_id } = req.params; 
     try {
-        await Message.removeReaction(parseInt(message_id), String(Reaction));
+        await Message.removeReaction(parseInt(reaction_id));
 
         res.status(200).json({
             msg: "Reacción eliminada correctamente",
@@ -135,6 +134,7 @@ export async function messageRemoveReaction(req, res) {
         });
     }
 }
+
 
 export async function getMessagesReaction(req, res) {
     const { message_id } = req.params;

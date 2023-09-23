@@ -20,7 +20,7 @@ messageRouter.put('/update/:message_id', messageUpdate);
 messageRouter.delete('/delete/:message_id', messageDelete);
 messageRouter.post('/add-reaction/:message_id', messageAddReaction);
 messageRouter.get('/find/reaction/:message_id', getMessagesReaction);
-messageRouter.delete('/remove-reaction/:message_id', messageRemoveReaction);
+messageRouter.delete('/remove-reaction/:reaction_id', messageRemoveReaction);
 messageRouter.get('/find/reactions/all', getAllMessagesReaction);
 
 

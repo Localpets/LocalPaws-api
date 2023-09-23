@@ -113,10 +113,8 @@ class Server {
                 });
             
                 // Eliminar una reacción de un mensaje en la sala
-                socket.on('removeReaction', ({ roomName, messageId, reaction }) => {
-                    // Implementa la lógica para eliminar la reacción del mensaje en la sala
-                    // y luego emite un evento a todos los clientes en la sala
-                    this.io.to(roomName).emit('removedReaction', { messageId, reaction });
+                socket.on('removeReaction', ( reaction ) => {
+                    this.io.to(reaction.room).emit('removedReaction', reaction);
                 });
             
                 socket.on('disconnect', () => {
