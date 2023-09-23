@@ -80,6 +80,57 @@ class Comment {
             }
         });
     }
+
+    // Funcion para likear comments
+    static async likeComment(comment_id, user_id, type) {
+        return await prisma.postCommentLike.create({
+            data: {
+                like_type: type,
+                comment_id: comment_id,
+                user_id: user_id
+            }
+        });
+    }
+
+    // Funcion para obtener likes de un comment
+    static async getLikes(comment_id) {
+        return await prisma.postCommentLike.findMany({
+            where: {
+                comment_id: comment_id
+            }
+        });
+    }
+
+    // Funcion para borrar Like de un comment por ID
+    static async deleteLikeByCommentId(comment_id, user_id) {
+        return await prisma.postCommentLike.deleteMany({
+            where: {
+                comment_id: comment_id,
+                user_id: user_id
+            }
+        });
+    }
+
+    // Funcion para update el type de un like
+    static async updateLikeType(comment_id, like_id, user_id, like_type) {
+        console.log({
+            comment_id,
+            like_id,
+            user_id,
+            like_type
+        })
+        
+        return await prisma.postCommentLike.update({
+            where: {
+                like_id: like_id,
+                comment_id: comment_id,
+                user_id: user_id
+            },
+            data: {
+                like_type: like_type
+            }
+        });
+    }
 }
 
 export default Comment;

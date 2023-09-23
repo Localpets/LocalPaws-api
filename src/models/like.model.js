@@ -72,7 +72,7 @@ class Like {
     }
 
     // Actualizar un like
-    static async updateLikeById(like_id, like_type, user_id, post_id) {
+    static async updateLikeById(like_id, like_type) {
         try {
             const updatedLike = await prisma.like.update({
                 where: {
@@ -80,8 +80,6 @@ class Like {
                 },
                 data: {
                     like_type,
-                    user_id,
-                    post_id
                 }
             });
             return updatedLike;

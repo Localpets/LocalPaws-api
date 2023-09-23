@@ -111,3 +111,94 @@ export async function commentDelete(req, res) {
         });
     }
 }
+
+// Funcion para likear comments
+export async function commentLike(req, res) {
+    try {
+        const comment_id = parseInt(req.params.comment_id);
+        const user_id = parseInt(req.body.user_id);
+        const type = req.body.type;
+        const like = await Comment.likeComment(comment_id, user_id, type);
+        res.status(200).json({
+        msg: "Like creado correctamente",
+        ok: true,
+        like
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+        ok: false,
+        msg: "Error al crear el like"
+        });
+    }
+}
+
+// Funcion para obtener likes de un comment
+export async function commentGetLikes(req, res) {
+    try {
+        const comment_id = parseInt(req.params.comment_id);
+        const likes = await Comment.getLikes(comment_id);
+        res.status(200).json({
+        msg: "Likes obtenidos correctamente",
+        ok: true,
+        likes
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+        ok: false,
+        msg: "Error al obtener los likes del comentario"
+        });
+    }
+}
+
+// Funcion para borrar Like de un comment por ID
+export async function commentDeleteLike(req, res) {
+    try {
+        const comment_id = parseInt(req.params.comment_id);
+        const user_id = parseInt(req.params.user_id);
+        console.log(comment_id, user_id)
+        
+        const like = await Comment.deleteLikeByCommentId(comment_id, user_id);
+        res.status(200).json({
+        msg: "Like eliminado correctamente",
+        ok: true,
+        like
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+        ok: false,
+        msg: "Error al eliminar el like del comentario"
+        });
+    }
+}
+
+// Funcion para update el type de un like
+export async function commentUpdateLike(req, res) {
+    try {
+        const comment_id = parseInt(req.params.comment_id);
+        const user_id = parseInt(req.body.user_id);
+        const like_id = parseInt(req.body.like_id);
+        const like_type = req.body.like_type;
+        console.log({
+            comment_id,
+            user_id,
+            like_id,
+            like_type
+        })
+        
+        const like = await Comment.updateLikeType(comment_id, like_id, user_id, like_type);
+        res.status(200).json({
+        msg: "Like actualizado correctamente",
+        ok: true,
+        like
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+        ok: false,
+        msg: "Error al actualizar el like del comentario"
+        });
+    }
+}

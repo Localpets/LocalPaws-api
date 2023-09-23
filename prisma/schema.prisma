@@ -24,6 +24,16 @@ model PostComment {
   @@index([comment_user_id], name: "post_comment_comment_user_id_foreign")
 }
 
+// post_comment_like  
+model PostCommentLike {
+  like_id           Int     @id @default(autoincrement())
+  like_type         String  @default("Like")
+  user_id           Int
+  comment_id        Int
+  @@index([user_id], name: "post_comment_like_user_id_foreign")
+  @@index([comment_id], name: "post_comment_like_comment_id_foreign")
+}
+
 // post
 model Post {
   post_id           Int     @id @default(autoincrement())

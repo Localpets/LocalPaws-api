@@ -100,7 +100,12 @@ export const userLogin = async (req, res) => {
     
         res.cookie("access_token", token)
         .status(200)
-        .json(others)
+        .json({
+            ok: true,
+            msg: 'Login correcto',
+            user: others,
+            token
+        })
     
         } else { // Si el usuario no existe, enviar error 403
         return res.status(403).json({

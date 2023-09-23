@@ -105,11 +105,32 @@ const deleteLike = async (req, res = response) => {
     }
 }
 
+// Actualizar un like
+const updateLikeById = async (req, res = response) => {
+    try {
+        const { like_id } = req.params;
+        const { like_type } = req.body;
+        const updatedLike = await Like.updateLikeById(like_id, like_type);
+        res.status(200).json({
+            ok: true,
+            msg: 'Like actualizado correctamente',
+            updatedLike
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error al actualizar el like'
+        });
+    }
+}
+
 // exportar las funciones de like
 export {
     createLike,
     readLikeById,
     readAllLikesByUserId,
     readAllLikesByPostId,
-    deleteLike
+    deleteLike,
+    updateLikeById
 }
