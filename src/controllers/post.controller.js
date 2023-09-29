@@ -14,14 +14,14 @@ const storage = multer.diskStorage({
   destination: join(__dirname, `../uploads/assets/postImage/${Date.now()}`),
   filename: (req, file, cb) => {
     const ext = extname(file.originalname);
-    const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}-${file.originalname}`;
     cb(null, fileName);
   }
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5000000 }, // Límite de tamaño de archivo (1 MB en este caso)
+  limits: { fileSize: 5000000 }, // Límite de tamaño de archivo (5 MB en este caso)
   fileFilter: (req, file, cb) => {
     const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
     if (allowedMimes.includes(file.mimetype)) {
@@ -180,6 +180,10 @@ export async function deletePost(req, res = response) {
   const id = parseInt(req.params.id);
   try {
     const post = await Post.deletePost(id);
+    // delete folder on cloudinary
+    const folder = post.image.split("/")[6];
+    await cloudinary.api.delete_folder(folder);
+
     return res.status(200).json({
       msg: "Post eliminado correctamente",
       ok: true,

@@ -1,8 +1,35 @@
 // importar response de express, para tener el tipado de la respuesta de la petición.
 import { response } from "express";
-
+import multer from "multer";
+import { dirname, join, extname } from "path";
+import { fileURLToPath } from "url";
+import { v2 as cloudinary } from "cloudinary";
 // importar modelo de usuario para crear usuarios en la base de datos.
 import User from "../models/user.model.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const storage = multer.diskStorage({
+  destination: join(__dirname, `../uploads/assets/pfp/${Date.now()}`),
+  filename: (req, file, cb) => {
+    const ext = extname(file.originalname);
+    const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, fileName);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5000000 }, // Límite de tamaño de archivo (1 MB en este caso)
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Formato de archivo no válido'));
+    }
+  }
+}).single('image'); // Nombre del campo en el formulario
 
 // Controladores de la API REST de usuarios para consultar la base de datos.
 
@@ -40,7 +67,7 @@ export const userGetAll = async (req, res = response) => {
     // Responder con los usuarios encontrados
     res.json({
         msg: 'GET API - controlador: Todos los usuarios',
-        data: user
+        users: user
     })
 
 }
@@ -179,3 +206,48 @@ export const userGenderDelete = async (req, res = response) => {
     })
 
 }
+
+export const userChangeProfilePicture = async (req, res = response) => {            
+        upload(req, res, async (err) => {
+            if (err) {
+            console.error(err);
+            return res.status(400).json({
+                ok: false,
+                msg: err.message
+            });
+            }
+            
+            // validar si viene la imagen
+            if (!req.file) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'No se ha enviado ninguna imagen'
+                });
+            }
+    
+            // Subir la imagen a Cloudinary
+            const result = await cloudinary.uploader.upload(req.file.path);
+    
+            const user_id = parseInt(req.params.user_id);
+    
+            // Actualizar el usuario en la base de datos
+            const user = await User.changeProfilePicture(user_id, result.secure_url );
+    
+            if (!user) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'No se pudo actualizar el usuario'
+                });
+            }
+    
+            return res.status(201).json({
+                msg: 'Imagen de perfil actualizada correctamente',
+                ok: true,
+                user
+            });
+        });
+
+}
+
+// export const userChangePassword = async (req, res = response) => {
+// }

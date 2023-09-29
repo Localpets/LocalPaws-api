@@ -12,7 +12,8 @@ import {
     userGenderCreate as createUserGenre,
     userGenderGetAll as readAllUserGenres,
     userGenderGetById as getUserGenreById,
-    userGenderDelete as deleteUserGenreById
+    userGenderDelete as deleteUserGenreById,
+    userChangeProfilePicture
 } from '../controllers/user.controller.js';
 
 // Importar metodos de verificacion de tokens
@@ -25,6 +26,7 @@ userRouter.get('/find/mail/:email', verifyToken, userGetByEmail);
 userRouter.get('/find/all', verifyToken, userGetAll);
 userRouter.put('/update/:user_id', verifyToken, userUpdate);
 userRouter.delete('/delete/:user_id', verifyToken, userDelete);
+userRouter.put('/update/profile-picture/:user_id', verifyToken, userChangeProfilePicture);
 
 // CRUD de tipos de usuario
 userRouter.post('/type/create', verifyToken, createUserType);

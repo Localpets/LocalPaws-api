@@ -21,7 +21,7 @@ class User {
 
   // Método estático para crear un usuario en la base de datos
   static async createUser(phoneNumber, firstName, lastName, username, email, password, type = 'USER', gender = 'not specified', token, marketing_accept = false) {
-    return prisma.user.create({
+    const res = prisma.user.create({
       data: {
         phone_number: phoneNumber,
         first_name: firstName,
@@ -35,6 +35,20 @@ class User {
         marketing_accept,
       },
     });
+
+    const userWithoutPasswordAndToken = {
+      user_id: res.user_id,
+      thumbnail: res.thumbnail,
+      email: res.email,
+      phone_number: res.phone_number,
+      first_name: res.first_name,
+      last_name: res.last_name,
+      username: res.username,
+      gender: res.gender,
+      type: res.type,
+    }
+
+    return userWithoutPasswordAndToken;
   }
 
   static async createAdminToken(user_id, token) {
@@ -48,10 +62,24 @@ class User {
 
   // Método estático para actualizar un usuario en la base de datos
   static async updateUser(id, data) {
-    return prisma.user.update({
+    const res =  prisma.user.update({
       where: { user_id: id },
       data
     });
+
+    const userWithoutPasswordAndToken = {
+      user_id: res.user_id,
+      thumbnail: res.thumbnail,
+      email: res.email,
+      phone_number: res.phone_number,
+      first_name: res.first_name,
+      last_name: res.last_name,
+      username: res.username,
+      gender: res.gender,
+      type: res.type,
+    }
+
+    return userWithoutPasswordAndToken;
   }
 
   // Método estático para actualizar el token de un usuario en la base de datos
@@ -66,21 +94,61 @@ class User {
 
   // Método estático para leer todos los usuarios de la base de datos
   static async readAllUsers() {
-    return prisma.user.findMany();
+    const users = await prisma.user.findMany();
+    const usersWithoutPasswordAndToken = users.map(user => ({
+      user_id: user.user_id,
+      thumbnail: user.thumbnail,
+      email: user.email,
+      phone_number: user.phone_number,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      username: user.username,
+      gender: user.gender,
+      type: user.type,
+    }));
+    return usersWithoutPasswordAndToken;
   }
 
   // Método estático para leer un usuario de la base de datos por su ID
   static async getUserById(id) {
-    return prisma.user.findUnique({
+    const res = prisma.user.findUnique({
       where: { user_id: id },
     });
+    
+    const userWithoutPasswordAndToken = {
+      user_id: res.user_id,
+      thumbnail: res.thumbnail,
+      email: res.email,
+      phone_number: res.phone_number,
+      first_name: res.first_name,
+      last_name: res.last_name,
+      username: res.username,
+      gender: res.gender,
+      type: res.type,
+    }
+
+    return userWithoutPasswordAndToken
   }
 
   // Método estático para leer un usuario de la base de datos por su email
   static async getUserByEmail(email) {
-    return prisma.user.findFirst({
+    const res = prisma.user.findFirst({
       where: { email },
     });
+
+    const userWithoutPasswordAndToken = {
+      user_id: res.user_id,
+      thumbnail: res.thumbnail,
+      email: res.email,
+      phone_number: res.phone_number,
+      first_name: res.first_name,
+      last_name: res.last_name,
+      username: res.username,
+      gender: res.gender,
+      type: res.type,
+    }
+
+    return userWithoutPasswordAndToken
   }
 
   // Método estático para borrar un usuario de la base de datos por su ID
@@ -142,6 +210,38 @@ class User {
   static async deleteUserGenderById(id) {
     return await prisma.userGenderType.delete({
       where: { user_gender_type_id: id },
+    });
+  }
+
+  static async changeProfilePicture(user_id, thumbnail) {
+    const res = await prisma.user.update({
+      where: { user_id: user_id },
+      data: {
+        thumbnail: thumbnail
+      },
+    });
+
+    const userWithoutPasswordAndToken = {
+      user_id: res.user_id,
+      thumbnail: res.thumbnail,
+      email: res.email,
+      phone_number: res.phone_number,
+      first_name: res.first_name,
+      last_name: res.last_name,
+      username: res.username,
+      gender: res.gender,
+      type: res.type,
+    }
+
+    return userWithoutPasswordAndToken;
+  }
+
+  static async changePassword(user_id, password) {
+    return await prisma.user.update({
+      where: { user_id: user_id },
+      data: {
+        password: password
+      },
     });
   }
 }

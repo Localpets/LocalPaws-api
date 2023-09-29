@@ -168,6 +168,10 @@ class Server {
         // Iniciar la escucha del servidor HTTP en el puerto especificado
         this.httpServer.listen(this.port, () => {
             console.log(`La aplicación Pawsplorer está escuchando en el puerto ${this.port}`);
+        }, (error) => { 
+            if (error) {
+                console.log(error);
+            }
         });
     }
 }

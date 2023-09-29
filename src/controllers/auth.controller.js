@@ -118,8 +118,6 @@ export const userLogin = async (req, res) => {
 // Cerrar sesión de usuario
 export const userLogout = async (req, res) => {
     res.clearCookie("accces_token", {
-        secure: true,
-        httpOnly: true,
         sameSite: "none"
     }).status(200).json({
         ok: true,
