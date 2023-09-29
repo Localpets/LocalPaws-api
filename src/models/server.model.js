@@ -16,6 +16,7 @@ import likeRouter from '../routes/like.routes.js';
 import followRouter from '../routes/follow.routes.js';
 import notificationRouter from '../routes/notification.routes.js';
 import chatRouter from '../routes/message.routes.js';
+import User from './user.model.js';
 
 // Acceso a variables de entorno
 dotenv.config();
@@ -64,7 +65,7 @@ class Server {
     configureSocketEvents = () => {
         this.io.on('connection', (socket) => {
           // Maneja la lógica para identificar al cliente, por ejemplo, usando su ID de usuario
-          const userId = socket.handshake.query.userId;      
+          const userId = socket.handshake.query.userId;
           // Verifica si ya existe una conexión para este usuario
           if (!this.activeConnections) {
             this.activeConnections = {}; // Inicializa el objeto si no existe
@@ -73,50 +74,93 @@ class Server {
           if (this.activeConnections[userId]) {
             // Cerrar la nueva conexión
             socket.disconnect();
+            socket.emit('leavePersonalRoom)', userId)
           } else {
             // Almacena la conexión activa para este usuario
             this.activeConnections[userId] = socket;
-            console.log(`Usuario ${userId} conectado al socket`)
       
             // Agregar un campo "userId" al objeto socket para futuras referencias
             socket.userId = userId;
-                
+
+                //socket para unir a un usuario a sala unica
+                socket.on('PersonalRoom', (UserRoom) => {
+                    socket.join(UserRoom)
+                    console.log(`Usuario ${userId} se unió a su sala privada: ${UserRoom}`);
+                })
+
+                //socket para salir de la sala unica
+                socket.on('leavePersonalRoom', (UserRoom) => {
+                    socket.leave(UserRoom)
+                    console.log(`Usuario ${userId} salio de su sala privada: ${UserRoom}`);
+                });
+
+                //socket para unir a una sala de chat
                 socket.on('joinRoom', (roomName) => {
                     socket.join(roomName);
                     console.log(`Usuario ${userId} se unió a la sala: ${roomName}`);
                 });
                 
+                //socket para salir de la sala de chat
                 socket.on('leaveRoom', (currentRoomName) => {
                     socket.leave(currentRoomName)
                     console.log(`Usuario ${userId} salio de la sala: ${currentRoomName}`);
                 })
             
-                // Enviar un mensaje a la sala
+                // Enviar un mensaje a la sala de chat
                 socket.on('sendMessage', (message) => {
                     this.io.to(message.room).emit('newMessage', message);
+
+                    // Actualizar el botón de chat en la sala
+                    this.io.to(message.room).emit('MessageBtnUpdate', message)
+
+                    // Actualizar el botón de chat en la sala
+                    this.io.to(message.receiver_id).emit('MessageBtnUpdate', message)
+
+                    console.log('evento transmitido', message)
                 });
   
     
-                // Editar un mensaje en la sala
+                // Editar un mensaje en la sala de chat
                 socket.on('editMessage', (message) => {
                     this.io.to(message.room).emit('editedMessage', message);
+
+                    // Actualizar el botón de chat en la sala
+                    this.io.to(message.room).emit('EditedBtnUpdate', message);
+
+                    // Actualizar el botón de chat del usuario
+                    this.io.to(message.receiver_id).emit('EditedBtnUpdate', message);
                 });
             
-                // Eliminar un mensaje en la sala
+                // Eliminar un mensaje en la sala de chat
                 socket.on('deleteMessage', (message) => {
                     this.io.to(message.room).emit('deletedMessage', message.id);
+
+                    // Actualizar el botón de chat en la sala
+                    this.io.to(message.room).emit('DeletedMsgBtnUpdate', message);
+                    
+                    // Actualizar el botón de chat del usuario
+                    this.io.to(message.receiver_id).emit('DeletedMsgBtnUpdate', message);
                 });
+                
             
-                // Agregar una reacción a un mensaje en la sala
-                socket.on('addReaction', ( reaction ) => {
+                // Agregar una reacción a un mensaje en la sala de chat
+                socket.on('addReaction', (reaction) => {
                     this.io.to(reaction.room).emit('addedReaction', reaction);
                 });
+                
             
-                // Eliminar una reacción de un mensaje en la sala
-                socket.on('removeReaction', ( reaction ) => {
+                // Eliminar una reacción de un mensaje en la sala de chat
+                socket.on('removeReaction', (reaction) => {
                     this.io.to(reaction.room).emit('removedReaction', reaction);
+                    console.log('reaccion eliminada', reaction)
                 });
-            
+                
+                //socket para actualizar la lista de contactos
+                socket.on('updateContacs', (User) => {
+                    this.io.to(User).emit('updateContacs');
+                })
+
+                //socket para desconectar al usuario del cliente
                 socket.on('disconnect', () => {
                     console.log(`Cliente con ID ${userId} desconectado.`);
                     delete this.activeConnections[userId];
