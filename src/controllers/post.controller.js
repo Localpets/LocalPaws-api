@@ -1,5 +1,6 @@
 // Importar response de express para tener autocompletado
 import { response } from "express";
+import fs from "fs";
 import multer from "multer";
 import { dirname, join, extname } from "path";
 import { fileURLToPath } from "url";
@@ -183,6 +184,10 @@ export async function deletePost(req, res = response) {
     // delete folder on cloudinary
     const folder = post.image.split("/")[6];
     await cloudinary.api.delete_folder(folder);
+
+    // delete server folder
+    const path = post.image.split("/")[7];
+    fs.unlinkSync(`./uploads/assets/postImage/${path}`);
 
     return res.status(200).json({
       msg: "Post eliminado correctamente",

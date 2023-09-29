@@ -1,5 +1,6 @@
 // importar response de express, para tener el tipado de la respuesta de la petición.
 import { response } from "express";
+import fs from "fs";
 import multer from "multer";
 import { dirname, join, extname } from "path";
 import { fileURLToPath } from "url";
@@ -229,7 +230,16 @@ export const userChangeProfilePicture = async (req, res = response) => {
             const result = await cloudinary.uploader.upload(req.file.path);
     
             const user_id = parseInt(req.params.user_id);
-    
+            
+            // borrar carpeta anterior de pfp
+            const userOld = await User.getUserById(user_id);
+            const oldPath = userOld.thumbnail;
+            await cloudinary.api.delete_folder(oldPath);
+
+            // delete server folder
+            fs.rmdirSync(join(__dirname, `../uploads/assets/pfp/${oldPath}`), { recursive: true });
+
+
             // Actualizar el usuario en la base de datos
             const user = await User.changeProfilePicture(user_id, result.secure_url );
     
