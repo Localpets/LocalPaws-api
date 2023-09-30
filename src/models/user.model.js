@@ -21,7 +21,7 @@ class User {
 
   // Método estático para crear un usuario en la base de datos
   static async createUser(phoneNumber, firstName, lastName, username, email, password, type = 'USER', gender = 'not specified', token, marketing_accept = false) {
-    const res = prisma.user.create({
+    const res = await prisma.user.create({
       data: {
         phone_number: phoneNumber,
         first_name: firstName,
@@ -62,7 +62,7 @@ class User {
 
   // Método estático para actualizar un usuario en la base de datos
   static async updateUser(id, data) {
-    const res =  prisma.user.update({
+    const res = await prisma.user.update({
       where: { user_id: id },
       data
     });
@@ -111,7 +111,7 @@ class User {
 
   // Método estático para leer un usuario de la base de datos por su ID
   static async getUserById(id) {
-    const res = prisma.user.findUnique({
+    const res = await prisma.user.findUnique({
       where: { user_id: id },
     });
     
@@ -132,7 +132,7 @@ class User {
 
   // Método estático para leer un usuario de la base de datos por su email
   static async getUserByEmail(email) {
-    const res = prisma.user.findFirst({
+    const res = await prisma.user.findFirst({
       where: { email },
     });
 
