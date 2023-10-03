@@ -16,7 +16,7 @@ import likeRouter from '../routes/like.routes.js';
 import followRouter from '../routes/follow.routes.js';
 import notificationRouter from '../routes/notification.routes.js';
 import chatRouter from '../routes/message.routes.js';
-import User from './user.model.js';
+import { userRooms } from './SharedSockets.js';
 
 // Acceso a variables de entorno
 dotenv.config();
@@ -66,6 +66,7 @@ class Server {
         this.io.on('connection', (socket) => {
           // Maneja la lógica para identificar al cliente, por ejemplo, usando su ID de usuario
           const userId = socket.handshake.query.userId;
+
           // Verifica si ya existe una conexión para este usuario
           if (!this.activeConnections) {
             this.activeConnections = {}; // Inicializa el objeto si no existe
@@ -98,14 +99,40 @@ class Server {
                 socket.on('joinRoom', (roomName) => {
                     socket.join(roomName);
                     console.log(`Usuario ${userId} se unió a la sala: ${roomName}`);
+
+                    // Registra la sala en el objeto userRooms
+                    if (!userRooms[userId]) {
+                        userRooms[userId] = [];
+                    }
+                    userRooms[userId].push(roomName);
                 });
                 
                 //socket para salir de la sala de chat
                 socket.on('leaveRoom', (currentRoomName) => {
                     socket.leave(currentRoomName)
                     console.log(`Usuario ${userId} salio de la sala: ${currentRoomName}`);
+
+                    // Elimina la sala del registro del usuario
+                    if (userRooms[userId]) {
+                        userRooms[userId] = userRooms[userId].filter(room => room !== currentRoomName);
+                    }
                 })
-            
+
+                //socket para salir de todas las salas excepto la PersonalRoom
+                socket.on('leaveAllRooms', () => {
+                    if (userRooms[userId]) {
+                        userRooms[userId].forEach(room => {
+                            // Verifica si la sala no es la PersonalRoom
+                            if (room !== 'PersonalRoom') {
+                                socket.leave(room);
+                                console.log(`Usuario ${userId} salio de la sala: ${room}`);
+                            }
+                        });
+                        // Deja solo la PersonalRoom en el registro del usuario
+                        userRooms[userId] = ['PersonalRoom'];
+                    }
+                });
+
                 // Enviar un mensaje a la sala de chat
                 socket.on('sendMessage', (message) => {
                     this.io.to(message.room).emit('newMessage', message);
@@ -115,8 +142,6 @@ class Server {
 
                     // Actualizar el botón de chat en la sala
                     this.io.to(message.receiver_id).emit('MessageBtnUpdate', message)
-
-                    console.log('evento transmitido', message)
                 });
   
     
@@ -152,12 +177,16 @@ class Server {
                 // Eliminar una reacción de un mensaje en la sala de chat
                 socket.on('removeReaction', (reaction) => {
                     this.io.to(reaction.room).emit('removedReaction', reaction);
-                    console.log('reaccion eliminada', reaction)
                 });
                 
                 //socket para actualizar la lista de contactos
                 socket.on('updateContacs', (User) => {
                     this.io.to(User).emit('updateContacs');
+                })
+
+                // socket para actualizar los chats eliminados
+                socket.on('DeletedChats', (Data) => {
+                    this.io.to(Data.userId).emit('DeletedChatBtnUpdate', Data.messageIds);
                 })
 
                 //socket para desconectar al usuario del cliente
@@ -168,6 +197,7 @@ class Server {
             }
         });
         }
+
 
 
     middlewares() {

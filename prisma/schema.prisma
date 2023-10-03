@@ -170,15 +170,41 @@ model Story {
 }
 
 model Message {
-  id                Int     @id @default(autoincrement())
-  sender_id         Int
-  receiver_id       Int
-  text              String @db.VarChar(500)
-  createdAt         DateTime @default(now())
-  edited            Int  @default(0)
-  room              String
+  id             Int       @id @default(autoincrement())
+  sender_id      Int
+  receiver_id    Int
+  text           String    @db.VarChar(500)
+  image_url      String    @default("")
+  createdAt      DateTime  @default(now())
+  edited         Int       @default(0)
+  replies        MessageReply[] @relation("repliesTo")
+  room           String
   @@index([sender_id], name: "message_sender_id_foreign")
   @@index([receiver_id], name: "message_receiver_id_foreign")
+}
+
+
+model MessageReply {
+  id               Int       @id @default(autoincrement())
+  parentMessage    Message?   @relation("repliesTo", fields: [parentMessageId], references: [id])
+  text             String     @db.VarChar(500)
+  image_url        String     @default("")
+  createdAt        DateTime   @default(now())
+  senderId         Int      
+  parentMessageId  Int?     
+  replyMessageId   Int?
+  @@index([parentMessageId], name: "message_reply_parent_message_id_foreign")
+  @@index([replyMessageId], name: "message_reply_reply_message_id_foreign")
+}
+
+model MessageStatus {
+  id            Int      @id @default(autoincrement())
+  user_id       Int
+  message_id    Int
+  is_deleted    Int  @default(0)
+  is_read       Int  @default(0)
+  @@index([user_id], name: "message_status_user_id_index")
+  @@index([message_id], name: "message_status_message_id_index")
 }
 
 model Message_like {
