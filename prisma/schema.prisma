@@ -183,7 +183,6 @@ model Message {
   @@index([receiver_id], name: "message_receiver_id_foreign")
 }
 
-
 model MessageReply {
   id               Int       @id @default(autoincrement())
   parentMessage    Message?   @relation("repliesTo", fields: [parentMessageId], references: [id])

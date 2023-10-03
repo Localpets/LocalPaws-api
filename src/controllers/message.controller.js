@@ -70,7 +70,7 @@ export async function messageCreate(req, res) {
             text,
             image_url,
             room,
-            replyMessage ? replyMessage.id : null // Utiliza el ID de replyMessage si existe
+            replyMessage ? replyMessage.id : 1 // Utiliza el ID de replyMessage si existe
         );
 
         if (replies) {
@@ -254,14 +254,15 @@ export async function messageDelete(req, res) {
       await Message.deleteMessageStatus(parseInt(message_id));
   
       // Luego eliminar el mensaje en sí
-      await Message.deleteMessage(parseInt(message_id));
+     await Message.deleteMessage(parseInt(message_id));
 
       /* // delete folder on cloudinary
-        const folder = post.image.split("/")[6];
+        const folder = message.image.split("/")[6];
         await cloudinary.api.delete_folder(folder);
 
         // delete server folder
-        const path = post.image.split("/")[7];
+        const path = message.image.split("/")[7];
+        console.log(image)
         fs.unlinkSync(`./uploads/assets/chatsImage/${path}`); */
   
       res.status(200).json({
