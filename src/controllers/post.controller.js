@@ -188,6 +188,7 @@ export async function deletePost(req, res = response) {
     // delete server folder
     const path = post.image.split("/")[7];
     fs.unlinkSync(`./uploads/assets/postImage/${path}`);
+    console.log(path)
 
     return res.status(200).json({
       msg: "Post eliminado correctamente",

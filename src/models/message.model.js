@@ -25,6 +25,15 @@ class Message {
         },
         });
     }
+
+    static async getMessageById(messageId) {
+        return prisma.message.findUnique({
+            where: {
+                id: messageId
+            }
+        });
+    }
+    
     
     static async createMessageReply({ text, image_url, senderId, parentMessageId, replyMessageId }) {
             return await prisma.messageReply.create({
@@ -152,6 +161,15 @@ class Message {
                 message_id: messageId
             }
         });
+    }
+
+    static async getUnreadMessagesStatus(userId) {
+        return prisma.messageStatus.findMany({
+            where: {
+                user_id: userId,
+                is_read: 0
+            }
+        })
     }
 
     static async MarkAsReadMessageStatus(messageStatusId, is_read) {
