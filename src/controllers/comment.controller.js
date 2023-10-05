@@ -41,6 +41,26 @@ export async function commentGetAll(req, res) {
     }
 }
 
+// Obtener comentario por ID del padre
+export async function getSiblingsFromParentCommentId(req, res) {
+    try {
+        const parent_comment_id = parseInt(req.params.parent_comment_id);
+        const comments = await Comment.getCommentsByParentCommentId(parent_comment_id);
+
+        res.status(200).json({
+        msg: "Comentarios obtenidos correctamente",
+        ok: true,
+        comments
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+        ok: false,
+        msg: "Error al obtener los comentarios del post"
+        });
+    }
+}
+
 // Funcion para crear un comentario
 
 export async function commentPost(req, res) {
@@ -74,9 +94,11 @@ export async function commentPost(req, res) {
 export async function commentPut(req, res) {
     try {
         const id = parseInt(req.params.comment_id);
+        const updatedAt = new Date();
         const comment = await Comment.updateComment(
         id,
-        req.body.text
+        req.body.text,
+        updatedAt
         );
         res.status(200).json({
         msg: "Comentario actualizado correctamente",
@@ -117,8 +139,10 @@ export async function commentLike(req, res) {
     try {
         const comment_id = parseInt(req.params.comment_id);
         const user_id = parseInt(req.body.user_id);
-        const type = req.body.type;
+        const type = req.body.like_type;
         const like = await Comment.likeComment(comment_id, user_id, type);
+        console.log('Like created: ', like)
+
         res.status(200).json({
         msg: "Like creado correctamente",
         ok: true,
@@ -157,9 +181,9 @@ export async function commentDeleteLike(req, res) {
     try {
         const comment_id = parseInt(req.params.comment_id);
         const user_id = parseInt(req.params.user_id);
-        console.log(comment_id, user_id)
-        
         const like = await Comment.deleteLikeByCommentId(comment_id, user_id);
+        console.log('Like deleted: ', like)
+        
         res.status(200).json({
         msg: "Like eliminado correctamente",
         ok: true,
@@ -181,14 +205,9 @@ export async function commentUpdateLike(req, res) {
         const user_id = parseInt(req.body.user_id);
         const like_id = parseInt(req.body.like_id);
         const like_type = req.body.like_type;
-        console.log({
-            comment_id,
-            user_id,
-            like_id,
-            like_type
-        })
-        
         const like = await Comment.updateLikeType(comment_id, like_id, user_id, like_type);
+        console.log('Like updated: ', like)
+
         res.status(200).json({
         msg: "Like actualizado correctamente",
         ok: true,

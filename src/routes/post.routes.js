@@ -30,7 +30,7 @@ postRouter.get("/find/id/:id", verifyToken, getPostById);
 // obtener todos los posts de un usuario
 postRouter.get("/user/:userId", verifyToken, getPostsByUserId);
 // actualizar un post
-postRouter.put("/update/:id/:post_user_id", verifyToken, updatePost);
+postRouter.put("/update/:post_id/:post_user_id", verifyToken, updatePost);
 // eliminar un post
 postRouter.delete("/delete/:id/:post_user_id", verifyToken, deletePost);
 

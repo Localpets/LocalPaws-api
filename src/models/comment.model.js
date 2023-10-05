@@ -53,22 +53,85 @@ class Comment {
             }
         });
     }
-    // Funcion para obtener todos los comentarios de un post
-    static async readAllCommentsBycomment_post_id(comment_post_id) {
-        return await prisma.PostComment.findMany({
+
+    //Get comments by Parent Comment Id
+    static async getCommentsByParentCommentId(parent_comment_id) {
+        const commentsRes = await prisma.postComment.findMany({
             where: {
-                comment_post_id: comment_post_id
+                parent_comment_id: parent_comment_id,
             }
         });
+
+        // Get user info for each comment
+        const comments = await Promise.all(commentsRes.map(async (comment) => {
+            const user = await prisma.user.findUnique({
+                where: {
+                    user_id: comment.comment_user_id
+                }
+            });
+
+            return {
+                comment_id: comment.comment_id,
+                comment_user_id: comment.comment_user_id,
+                comment_post_id: comment.comment_post_id,
+                parent_comment_id: comment.parent_comment_id,
+                text: comment.text,
+                user: {
+                    user_id: user.user_id,
+                    username: user.username,
+                    avatar: user.thumbnail
+                }
+            }
+        }));
+
+        return comments;
+    }
+
+    // Funcion para obtener todos los comentarios de un post
+    static async readAllCommentsBycomment_post_id(comment_post_id) {
+        const res = await prisma.postComment.findMany({
+            where: {
+                comment_post_id: comment_post_id,
+                parent_comment_id: null
+            }
+        });
+
+        // Get user info for each comment
+        const comments = await Promise.all(res.map(async (comment) => {
+            const user = await prisma.user.findUnique({
+                where: {
+                    user_id: comment.comment_user_id
+                }
+            });
+
+
+
+            return {
+                comment_id: comment.comment_id,
+                comment_user_id: comment.comment_user_id,
+                comment_post_id: comment.comment_post_id,
+                parent_comment_id: comment.parent_comment_id,
+                text: comment.text,
+                user: {
+                    user_id: user.user_id,
+                    username: user.username,
+                    avatar: user.thumbnail
+                }
+            }
+        }));
+
+        return comments;
+    
     }
     // Funcion para actualizar un comentario
-    static async updateComment(comment_id, content) {
+    static async updateComment(comment_id, content, updatedAt) {
         return await prisma.PostComment.update({
             where: {
                 comment_id: comment_id
             },
             data: {
-                text: content
+                text: content,
+                updatedAt: updatedAt
             }
         });
     }
@@ -113,13 +176,6 @@ class Comment {
 
     // Funcion para update el type de un like
     static async updateLikeType(comment_id, like_id, user_id, like_type) {
-        console.log({
-            comment_id,
-            like_id,
-            user_id,
-            like_type
-        })
-        
         return await prisma.postCommentLike.update({
             where: {
                 like_id: like_id,
