@@ -20,6 +20,7 @@ model PostComment {
   comment_user_id   Int
   parent_comment_id Int?
   createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now())
   @@index([comment_post_id], name: "post_comment_comment_post_id_foreign")
   @@index([comment_user_id], name: "post_comment_comment_user_id_foreign")
 }
@@ -41,7 +42,9 @@ model Post {
   image             String  @default("no image")
   category          String
   post_user_id      Int
+  edited            Boolean  @default(false)
   createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now())
   @@index([post_user_id], name: "post_post_user_id_foreign")
 }
 
@@ -60,17 +63,13 @@ model UserType {
 // like
 model Like {
   like_id           Int     @id @default(autoincrement())
-  like_type         String  @default("like")
+  like_type         String  
   user_id           Int
   post_id           Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now())
   @@index([user_id], name: "like_user_id_foreign")
   @@index([post_id], name: "like_post_id_foreign")
-}
-
-// lke_type
-model LikeType {
-  like_type_id      Int     @id @default(autoincrement())
-  title             String
 }
 
 // user_gender_type
@@ -135,6 +134,7 @@ model User {
   type              String @default("USER")
   token             String @default("no token provided")
   createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now())
   @@index([gender], name: "user_gender_type_title_foreign")
   @@index([type], name: "user_type_title_foreign")
 }
@@ -158,17 +158,6 @@ model Follow {
   @@index([followedId], name: "follow_friend_id_foreign")
 }
 
-// user_story
-model Story {
-  story_id          Int     @id @default(autoincrement())
-  user_id           Int
-  image             String
-  views             Int @default(0)
-  likes             Int @default(0)
-  createdAt         DateTime @default(now())
-  @@index([user_id], name: "story_user_id_foreign")
-}
-
 model Message {
   id             Int       @id @default(autoincrement())
   sender_id      Int
@@ -176,6 +165,7 @@ model Message {
   text           String    @db.VarChar(500)
   image_url      String    @default("")
   createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now())
   edited         Int       @default(0)
   replies        MessageReply[] @relation("repliesTo")
   room           String
@@ -223,10 +213,4 @@ model Notification {
   type              String
   createdAt         DateTime @default(now())
   @@index([user_id], name: "notification_user_id_foreign")
-}
-
-model Notification_type {
-  id                Int     @id @default(autoincrement())
-  title             String
-  @@index([title], name: "notification_type_title_foreign")
 }

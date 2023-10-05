@@ -46,11 +46,9 @@ export async function createPost(req, res = response) {
         }
         
         // validar si viene la imagen
-        if (!req.file) {
-
+        if (!req.file) {    
           const { text, category } = req.body;
           const post_user_id = parseInt(req.body.post_user_id);
-    
           // Crear el post con la URL de la imagen de Cloudinary
           const post = await Post.createPost(text, category, null, post_user_id);
 
@@ -61,12 +59,17 @@ export async function createPost(req, res = response) {
           });
         }
 
-        // Subir la imagen a Cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path);
-  
         const { text, category } = req.body;
         const post_user_id = parseInt(req.body.post_user_id);
-  
+
+        // Subir la imagen a Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: `postImages/user:${post_user_id}`,
+          resource_type: 'image',
+          public_id: `date-${Date.now()}`,
+          overwrite: true,
+        });
+
         // Crear el post con la URL de la imagen de Cloudinary
         const post = await Post.createPost(text, category, result.secure_url, post_user_id);
   
@@ -150,17 +153,17 @@ export async function getPostsByUserId(req, res = response) {
 
 // actualizar un post
 export async function updatePost(req, res = response) {
-  const id = parseInt(req.params.id);
+  const post_id = parseInt(req.params.post_id);
   const post_user_id = parseInt(req.params.post_user_id);
-  const { text, category, image, likes } = req.body;
+  const { text } = req.body;
+  const updatedDate = new Date();
+
   try {
     const post = await Post.updatePost(
-      id,
+      post_id,
       text,
-      category,
-      image,
-      likes,
-      post_user_id
+      post_user_id,
+      updatedDate
     );
     return res.status(200).json({
       msg: "Post actualizado correctamente",
@@ -187,6 +190,7 @@ export async function deletePost(req, res = response) {
 
     // delete server folder
     const path = post.image.split("/")[7];
+    console.log(path);
     fs.unlinkSync(`./uploads/assets/postImage/${path}`);
     console.log(path)
 
