@@ -129,6 +129,7 @@ model User {
   username          String
   email             String
   password          String
+  groupParticipants GroupParticipant[]
   marketing_accept  Boolean @default(false)
   gender            String @default("not specified")
   type              String @default("USER")
@@ -158,6 +159,23 @@ model Follow {
   @@index([followedId], name: "follow_friend_id_foreign")
 }
 
+model GroupChat {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  image    String   @default("")
+  participants GroupParticipant[]
+}
+
+model GroupParticipant {
+  id       Int     @id @default(autoincrement())
+  groupId  Int
+  userId   Int
+  user      User         @relation(fields: [userId], references: [user_id])
+  group     GroupChat        @relation(fields: [groupId], references: [id])
+  @@index([groupId])
+  @@index([userId])
+}
+
 model Message {
   id             Int       @id @default(autoincrement())
   sender_id      Int
@@ -171,6 +189,18 @@ model Message {
   room           String
   @@index([sender_id], name: "message_sender_id_foreign")
   @@index([receiver_id], name: "message_receiver_id_foreign")
+}
+
+model MessageGroup {
+  id             Int       @id @default(autoincrement())
+  sender_id      Int
+  text           String    @db.VarChar(500)
+  image_url      String    @default("")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now())
+  edited         Int       @default(0)
+  group_id       Int
+  sender         Int
 }
 
 model MessageReply {

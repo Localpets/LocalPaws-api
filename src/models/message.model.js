@@ -70,9 +70,6 @@ class Message {
             throw error;
         }
     }
-    
-      
-    
 
     static async getAllMessages() {
         return prisma.message.findMany();
@@ -187,4 +184,87 @@ class Message {
     }
     
 }
-export default Message;
+
+class Group {
+    static async createGroup(name, image) {
+      return await prisma.GroupChat.create({
+        data: {
+          name,
+          image,
+        },
+      });
+    }
+  
+    static async getGroupById(groupId) {
+      return await prisma.GroupChat.findUnique({
+        where: {
+          id: groupId,
+        },
+      });
+    }
+  
+    static async getAllGroups() {
+      return await prisma.GroupChat.findMany();
+    }
+
+    static async getGroupsByUserId(userId) {
+      return await prisma.GroupChat.findMany({
+          where: {
+              participants: {
+                  some: {
+                      userId: userId
+                  }
+              }
+          }
+      });
+  }
+  
+  
+    static async createGroupParticipant(groupId, userId) {
+      return await prisma.groupParticipant.create({
+        data: {
+          groupId,
+          userId,
+        },
+      });
+    }
+  
+    static async getGroupParticipants(groupId) {
+      return await prisma.groupParticipant.findMany({
+        where: {
+          groupId,
+        },
+      });
+    }
+  }
+  
+  class MessageGroup {
+    static async createMessage(senderId, groupId, text, image_url) {
+      return await prisma.messageGroup.create({
+        data: {
+          sender_id: senderId,
+          group_id: groupId,
+          text,
+          image_url,
+        },
+      });
+    }
+  
+    static async getMessageById(messageId) {
+      return await prisma.messageGroup.findUnique({
+        where: {
+          id: messageId,
+        },
+      });
+    }
+  
+    static async getMessagesByGroupId(groupId) {
+      return await prisma.messageGroup.findMany({
+        where: {
+          group_id: groupId,
+        },
+      });
+    }
+  }
+
+export { Message, Group, MessageGroup };

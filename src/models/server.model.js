@@ -83,8 +83,6 @@ class Server {
       
             // Agregar un campo "userId" al objeto socket para futuras referencias
             socket.userId = userId;
-            console.log('socket conectado', socket.userId)
-
                 //socket para unir a un usuario a sala unica
                 socket.on('PersonalRoom', (UserRoom) => {
                     socket.join(UserRoom)

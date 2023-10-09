@@ -1,5 +1,5 @@
 // importar el modelo del mensaje
-import Message from "../models/message.model.js";
+import { Message, Group, MessageGroup} from "../models/message.model.js";
 import multer from "multer";
 import { dirname, join, extname } from "path";
 import { fileURLToPath } from "url";
@@ -13,7 +13,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      const userId = req.body.sender_id; // Obtén el ID del usuario desde la solicitud (ajusta esto según tu estructura de datos)
+      const userId = req.body.sender_id;
       const userFolderPath = join(__dirname, `../uploads/assets/chatsImage/user_${userId}/`);
   
       // Crea la carpeta del usuario si no existe
@@ -487,3 +487,201 @@ export async function markMessageAsDeleted(req, res) {
         });
     }
 }
+
+export async function createGroup(req, res) {
+  try {
+    // Definir una variable para almacenar la URL de la imagen
+    let imageUrl = '';
+
+    // Utiliza el middleware de multer para subir la imagen
+    upload(req, res, async (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(400).json({
+          ok: false,
+          msg: err.message
+        });
+      }
+
+      const { name } = req.body;
+
+      // Verifica si se cargó una imagen
+      if (req.file) {
+        // Sube la imagen a Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: `GroupsImages/Group:${name}`,
+          resource_type: 'image',
+          overwrite: true,
+        });
+
+        // Asigna la URL de Cloudinary a la variable image
+        imageUrl = result.secure_url;
+      }
+
+      // Crea el grupo en la base de datos, incluyendo la URL de la imagen si existe
+      const group = await Group.createGroup(name, imageUrl);
+
+      return res.status(200).json({
+        ok: true,
+        msg: "Grupo creado correctamente",
+        group,
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      ok: false,
+      msg: "Error al crear el grupo",
+    });
+  }
+}
+
+
+  export async function getGroupById(req, res) {
+    try {
+      const groupId = parseInt(req.params.group_id);
+      const group = await Group.getGroupById(groupId);
+      if (!group) {
+        return res.status(404).json({
+          ok: false,
+          msg: "Grupo no encontrado",
+        });
+      }
+      res.status(200).json({
+        ok: true,
+        group,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Error al obtener el grupo",
+      });
+    }
+  }
+  
+  export async function getAllGroups(req, res) {
+    try {
+      const groups = await Group.getAllGroups();
+      res.status(200).json({
+        ok: true,
+        groups,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Error al obtener los grupos",
+      });
+    }
+  }
+
+  export async function getGroupsByUserId(req, res) {
+    try {
+        const userId = parseInt(req.params.user_id);
+        const groups = await Group.getGroupsByUserId(userId);
+        res.status(200).json({
+            ok: true,
+            groups,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: "Error al obtener los grupos del usuario",
+        });
+    }
+}
+  
+  export async function createGroupParticipant(req, res) {
+    try {
+      const { groupId, userId } = req.body;
+      const groupParticipant = await Group.createGroupParticipant(groupId, userId);
+      res.status(201).json({
+        ok: true,
+        msg: "Participante de grupo creado correctamente",
+        groupParticipant,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Error al crear el participante de grupo",
+      });
+    }
+  }
+  
+  export async function getGroupParticipants(req, res) {
+    try {
+      const groupId = parseInt(req.params.group_id);
+      const participants = await Group.getGroupParticipants(groupId);
+      res.status(200).json({
+        ok: true,
+        participants,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Error al obtener los participantes del grupo",
+      });
+    }
+  }
+  
+  export async function createMessageInGroup(req, res) {
+    try {
+      const { senderId, groupId, text, image_url } = req.body;
+      const message = await MessageGroup.createMessage(senderId, groupId, text, image_url);
+      res.status(201).json({
+        ok: true,
+        msg: "Mensaje en grupo creado correctamente",
+        message,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Error al crear el mensaje en grupo",
+      });
+    }
+  }
+  
+  export async function getMessageInGroupById(req, res) {
+    try {
+      const messageId = parseInt(req.params.message_id);
+      const message = await MessageGroup.getMessageById(messageId);
+      if (!message) {
+        return res.status(404).json({
+          ok: false,
+          msg: "Mensaje en grupo no encontrado",
+        });
+      }
+      res.status(200).json({
+        ok: true,
+        message,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Error al obtener el mensaje en grupo",
+      });
+    }
+  }
+  
+  export async function getMessagesInGroup(req, res) {
+    try {
+      const groupId = parseInt(req.params.group_id);
+      const messages = await MessageGroup.getMessagesByGroupId(groupId);
+      res.status(200).json({
+        ok: true,
+        messages,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Error al obtener los mensajes en grupo",
+      });
+    }
+  }
