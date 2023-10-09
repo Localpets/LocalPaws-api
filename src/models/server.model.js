@@ -66,6 +66,7 @@ class Server {
         this.io.on('connection', (socket) => {
           // Maneja la lógica para identificar al cliente, por ejemplo, usando su ID de usuario
           const userId = socket.handshake.query.userId;
+          
 
           // Verifica si ya existe una conexión para este usuario
           if (!this.activeConnections) {
@@ -82,6 +83,7 @@ class Server {
       
             // Agregar un campo "userId" al objeto socket para futuras referencias
             socket.userId = userId;
+            console.log('socket conectado', socket.userId)
 
                 //socket para unir a un usuario a sala unica
                 socket.on('PersonalRoom', (UserRoom) => {

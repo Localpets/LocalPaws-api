@@ -15,7 +15,8 @@ import {
     markMessageAsRead,
     markMessageAsDeleted,
     messageStatusCreate,
-    GetResponsesByMessageId
+    GetResponsesByMessageId,
+    GetUnreadMessagesByUserId
 } from '../controllers/message.controller.js';
 
 const messageRouter = Router();
@@ -33,6 +34,7 @@ messageRouter.post('/create-status', messageStatusCreate);
 messageRouter.delete('/delete-status/:message_id', messageStatusDelete);
 messageRouter.get('/get-status/:user_id/:message_id', getMessageStatus);
 messageRouter.get('/get-status/all', GetAllMessagesStatus);
+messageRouter.get('/get-unread-status/:user_id', GetUnreadMessagesByUserId);
 messageRouter.put('/mark-as-read/:user_id/:message_id', markMessageAsRead);
 messageRouter.put('/mark-as-deleted/:user_id/:message_id', markMessageAsDeleted);
 messageRouter.get('/get-responses/:message_id', GetResponsesByMessageId);

@@ -12,13 +12,24 @@ import fs from "fs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const storage = multer.diskStorage({
-  destination: join(__dirname, `../uploads/assets/chatsImage/${Date.now()}`),
-  filename: (req, file, cb) => {
-    const ext = extname(file.originalname);
-    const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-    cb(null, fileName);
-  }
-});
+    destination: (req, file, cb) => {
+      const userId = req.body.sender_id; // Obtén el ID del usuario desde la solicitud (ajusta esto según tu estructura de datos)
+      const userFolderPath = join(__dirname, `../uploads/assets/chatsImage/user_${userId}/`);
+  
+      // Crea la carpeta del usuario si no existe
+      if (!fs.existsSync(userFolderPath)) {
+        fs.mkdirSync(userFolderPath, { recursive: true });
+      }
+  
+      cb(null, userFolderPath);
+    },
+    filename: (req, file, cb) => {
+      const ext = extname(file.originalname);
+      const fileName = `${Math.round(Math.random() * 1e9)}${ext}`;
+      cb(null, fileName);
+    }
+  });
+  
 
 const upload = multer({
   storage,
@@ -45,23 +56,20 @@ export async function messageCreate(req, res) {
       }
   
       try {
-        // Verifica si se cargó una imagen
-        if (req.file) {
-          // Sube la imagen a Cloudinary
-          const result = await cloudinary.uploader.upload(req.file.path);
-          image_url = result.secure_url;
-        }
-  
-        // Verifica si se cargó una imagen
-        if (req.file) {
-          // Sube la imagen a Cloudinary
-          const result = await cloudinary.uploader.upload(req.file.path);
-          image_url = result.secure_url;
-        }
         const {  text, room, replies } = req.body;
         const sender_id = parseInt(req.body.sender_id);
         const receiver_id = parseInt(req.body.receiver_id);
         let replyMessage = {};
+        // Verifica si se cargó una imagen
+        if (req.file) {
+          // Sube la imagen a Cloudinary
+          const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: `ChatsImages/user:${sender_id}`,
+            resource_type: 'image',
+            overwrite: true,
+          });
+          image_url = result.secure_url;
+        }
 
        // Crear el mensaje en la base de datos
         const message = await Message.createMessage(
@@ -227,6 +235,25 @@ export async function messageStatusCreate(req, res) {
     }
 }
 
+export async function GetUnreadMessagesByUserId(req, res) {
+    try {
+      const userId = parseInt(req.params.user_id);
+      const unreadMessages = await Message.getUnreadMessagesStatus(userId);
+  
+      res.status(200).json({
+        msg: "Mensajes no leídos obtenidos correctamente",
+        ok: true,
+        unreadMessages
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Error al obtener los mensajes no leídos"
+      });
+    }
+  }
+
 export async function messageUpdate(req, res) {
     const { message_id } = req.params;
     const { text, edited } = req.body;
@@ -246,37 +273,45 @@ export async function messageUpdate(req, res) {
     }
 }
 
+
 export async function messageDelete(req, res) {
     const { message_id } = req.params;
   
     try {
-      // Eliminar los estados del mensaje asociados al mensaje_id
-      await Message.deleteMessageStatus(parseInt(message_id));
+      // Obtener información del mensaje antes de eliminarlo
+      const message = await Message.getMessageById(parseInt(message_id));
+      if (!message) {
+        return res.status(404).json({
+          ok: false,
+          msg: 'Mensaje no encontrado',
+        });
+      }
   
-      // Luego eliminar el mensaje en sí
-     await Message.deleteMessage(parseInt(message_id));
-
-      /* // delete folder on cloudinary
-        const folder = message.image.split("/")[6];
-        await cloudinary.api.delete_folder(folder);
-
-        // delete server folder
-        const path = message.image.split("/")[7];
-        console.log(image)
-        fs.unlinkSync(`./uploads/assets/chatsImage/${path}`); */
+      // Verificar si hay una URL de imagen asociada al mensaje
+      if (message.image_url) {
+        // Obtener el identificador único de Cloudinary desde la URL
+        const cloudinaryPublicId = message.image_url.split('/').pop().split('.')[0];
+        // Eliminar el archivo de Cloudinary
+        await cloudinary.api.delete_resources([`ChatsImages/user:${message.sender_id}/${cloudinaryPublicId}`]);
+      }
+  
+      // Eliminar el mensaje en sí
+      await Message.deleteMessage(parseInt(message_id));
   
       res.status(200).json({
-        msg: "Mensaje y estados asociados eliminados correctamente",
+        msg: "Mensaje y archivo asociado en Cloudinary eliminados correctamente",
         ok: true,
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       res.status(500).json({
         ok: false,
-        msg: "Error al eliminar el mensaje y sus estados asociados",
+        msg: "Error al eliminar el mensaje y el archivo asociado en Cloudinary",
       });
     }
   }
+  
+  
 
 export async function messageStatusDelete(req, res) {
     const { message_id } = req.params;

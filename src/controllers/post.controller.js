@@ -190,6 +190,7 @@ export async function deletePost(req, res = response) {
     const path = post.image.split("/")[7];
     console.log(path);
     fs.unlinkSync(`./uploads/assets/postImage/${path}`);
+    console.log(path)
 
     return res.status(200).json({
       msg: "Post eliminado correctamente",
