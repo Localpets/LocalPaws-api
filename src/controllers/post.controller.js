@@ -156,14 +156,12 @@ export async function updatePost(req, res = response) {
   const post_id = parseInt(req.params.post_id);
   const post_user_id = parseInt(req.params.post_user_id);
   const { text } = req.body;
-  const updatedDate = new Date();
 
   try {
     const post = await Post.updatePost(
       post_id,
       text,
-      post_user_id,
-      updatedDate
+      post_user_id
     );
     return res.status(200).json({
       msg: "Post actualizado correctamente",

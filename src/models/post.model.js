@@ -68,7 +68,7 @@ class Post {
     }
 
     // actualizar un post
-    static async updatePost(post_id, text, post_user_id, updatedAt ) {
+    static async updatePost(post_id, text, post_user_id ) {
         try {
             const post = await prisma.post.update({
                 where: {
@@ -77,7 +77,7 @@ class Post {
                 },
                 data: {
                     text,
-                    updatedAt
+                    updatedAt: new Date()
                 }
             });
             return post;
