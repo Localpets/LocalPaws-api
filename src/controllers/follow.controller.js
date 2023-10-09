@@ -48,6 +48,7 @@ export const readAllFollowsByUserId = async (req, res) => {
 export const readAllFollowsByFollowedId = async (req, res) => {
     try {
         const userId = parseInt(req.params.followedId);
+        console.log(userId)
         const follows = await Follow.getFollowersByUserId(userId);
         res.status(200).json({
             msg: 'GET API - controlador: Todos los follows de un usuario',

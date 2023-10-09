@@ -182,15 +182,31 @@ export async function deletePost(req, res = response) {
   const id = parseInt(req.params.id);
   try {
     const post = await Post.deletePost(id);
-    // delete folder on cloudinary
-    const folder = post.image.split("/")[6];
-    await cloudinary.api.delete_folder(folder);
 
-    // delete server folder
-    const path = post.image.split("/")[7];
-    console.log(path);
-    fs.unlinkSync(`./uploads/assets/postImage/${path}`);
-    console.log(path)
+    if (!post) {
+      return res.status(400).json({
+        ok: false,
+        msg: "No se pudo eliminar el post",
+      });
+    }
+
+    if (post.image === 'no image') {
+      return res.status(200).json({
+        msg: "Post eliminado correctamente",
+        ok: true,
+        post,
+      });
+    } else {
+      // delete folder on cloudinary
+      const folder = post.image.split("/")[6];
+      await cloudinary.api.delete_folder(folder);
+
+      // delete server folder
+      const path = post.image.split("/")[7];
+      console.log(path);
+      fs.unlinkSync(`./uploads/assets/postImage/${path}`);
+      console.log(path)
+    }
 
     return res.status(200).json({
       msg: "Post eliminado correctamente",
