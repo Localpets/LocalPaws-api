@@ -127,6 +127,7 @@ model User {
   first_name        String
   last_name         String
   username          String
+  biography         String @default("")
   email             String
   password          String
   groupParticipants GroupParticipant[]

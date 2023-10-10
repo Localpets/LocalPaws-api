@@ -213,11 +213,13 @@ class User {
     });
   }
 
-  static async changeProfilePicture(user_id, thumbnail) {
+  static async changeProfileInfo(user_id, thumbnail, username, biography) {
     const res = await prisma.user.update({
       where: { user_id: user_id },
       data: {
-        thumbnail: thumbnail
+        thumbnail: thumbnail,
+        username: username,
+        biography: biography
       },
     });
 

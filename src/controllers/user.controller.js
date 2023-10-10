@@ -208,7 +208,7 @@ export const userGenderDelete = async (req, res = response) => {
 
 }
 
-export const userChangeProfilePicture = async (req, res = response) => {            
+export const userChangeProfileInfo = async (req, res = response) => {
     upload(req, res, async (err) => {
         try {
             if (err) {
@@ -219,30 +219,43 @@ export const userChangeProfilePicture = async (req, res = response) => {
                 });
             }
             
-            // validar si viene la imagen
-            if (!req.file) {
-                return res.status(400).json({
-                    ok: false,
-                    msg: 'No se ha enviado ninguna imagen'
-                });
-            }
-    
-            // Subir la imagen a Cloudinary
-            const result = await cloudinary.uploader.upload(req.file.path);
+            const { username, biography } = req.body;
     
             const user_id = parseInt(req.params.user_id);
+    
+            let thumbnail = null; // Inicializamos con null
+            if (req.file) {
+                // Si se envió una imagen, la subimos a Cloudinary y actualizamos el campo thumbnail
+                const result = await cloudinary.uploader.upload(req.file.path);
+                thumbnail = result.secure_url;
+            } else {
+                // Si no se envió una imagen, conservamos la imagen existente del usuario
+                const existingUser = await User.getUserById(user_id);
+                if (existingUser) {
+                    thumbnail = existingUser.thumbnail;
+                }
+            }
+    
+            // Obtener el usuario existente
+            const existingUser = await User.getUserById(user_id);
+
+            // Comprobar si username y biography son proporcionados, si no, mantener los valores existentes
+            const updatedUsername = username ? "@" + username : existingUser.username;
+            const updatedBiography = biography || existingUser.biography;
+
+    
             // Actualizar el usuario en la base de datos
-            const user = await User.changeProfilePicture(user_id, result.secure_url );
+            const user = await User.changeProfileInfo(user_id, thumbnail, updatedUsername, updatedBiography);
     
             if (!user) {
-                return res.status(400).json({
+                return res.status(404).json({
                     ok: false,
                     msg: 'No se pudo actualizar el usuario'
                 });
             }
     
-            return res.status(201).json({
-                msg: 'Imagen de perfil actualizada correctamente',
+            return res.status(200).json({
+                msg: 'Perfil actualizado correctamente',
                 ok: true,
                 user
             });
@@ -255,6 +268,8 @@ export const userChangeProfilePicture = async (req, res = response) => {
         }
     });
 }
+
+
 
 // export const userChangePassword = async (req, res = response) => {
 // }
