@@ -11,6 +11,9 @@ A continuación se detallan las rutas disponibles en esta API para diversas func
 - this.postRoutePath = '/api/post';
 - this.likeRoutePath = '/api/like';
 - this.followRoutePath = '/api/follow';
+- this.chatRouter = '/api/message';
+- this.notificationRoutePath = '/api/notification';
+
 
 
 ## Rutas de Autenticación
@@ -361,6 +364,81 @@ Elimina un género de usuario por su ID.
 
 - **Ruta:** DELETE /user/genre/delete/:id
 - **Middleware de Autenticación:** verifyToken
+
+## Rutas de mensajes
+// Rutas relacionadas con mensajes individuales
+Obtener mensaje por id
+- **Ruta:** GET /message/get/:message_id
+Crear mensaje
+- **Ruta:** POST /message/create
+
+Actualizar mensaje por id
+- **Ruta:** PUT /message/:message_id
+Eliminar mensaje por id
+- **Ruta:** DELETE /message/delete/:message_id
+
+// Rutas relacionadas con reacciones a mensajes
+Añadir reacción por id de mensaje
+- **Ruta:** POST /message/add-reaction/:message_id
+Obtener reacción por id de mensaje
+- **Ruta:** GET /message/find/reaction/:message_id
+Eliminar reacción por id de reaccion
+- **Ruta:** DELETE /message/remove-reaction/:reaction_id
+Obtener todas las reacciones
+- **Ruta:** GET /message/find/reactions/all
+
+// Rutas relacionadas con estados de mensajes 
+Crear estado de mensaje
+- **Ruta:** POST /message/create-status
+
+Eliminar estado del mensaje por su id
+- **Ruta:** DELETE /message/delete-status/:message_id
+
+Obtener estado del mensaje por id de usuario y mensaje
+- **Ruta:** GET /message/get-status/:user_id/:message_id
+
+Obtener todos los estados de los mensajes
+- **Ruta:** GET /message/get-status/all
+
+Obtener los estados de lectura por id de usuario.
+- **Ruta:** GET /message/get-unread-status/:user_id
+
+// Rutas relacionadas con marcado de mensajes
+Marcar como leído un mensaje por id de usuario e id de mensaje
+- **Ruta:** PUT /message/mark-as-read/:user_id/:message_id
+Marcar como eliminado un mensaje por id de usuario e id de mensaje
+- **Ruta:** PUT /message/mark-as-deleted/:user_id/:message_id
+
+// Rutas relacionadas con respuestas a mensajes
+Obtener las respuestas de un mensaje por su id
+- **Ruta:** GET /message/get-responses/:message_id
+
+// Rutas relacionadas con listado de mensajes
+Obtener todos los mensajes de un usuario por su id
+- **Ruta:** GET /message/find/all/:user_id
+
+// Rutas relacionadas con grupos
+Crear un grupo
+- **Ruta:** POST /message/group/créate
+Obtener un grupo por su id de grupo
+- **Ruta:** GET /message/group/get/:group_id
+Obtener todos los grupos
+- **Ruta:** GET /message/group/get-all'
+Obtener todos los grupos de un usuario por su id
+- **Ruta:** GET /message/group/get-all/:user_id
+
+// Rutas relacionadas con participantes de grupo
+Añadir participante al grupo
+- **Ruta:** POST /message/group/add-participant
+Obtener participantes de un grupo por su id
+- **Ruta:** GET /message/group/get-participants/:group_id
+// Rutas relacionadas con mensajes de grupo
+Crear un mensaje en el grupo
+- **Ruta:** POST /message/group/create-message
+Obtener un mensaje del grupo por su id de mensaje
+- **Ruta:** GET /message/group/get-message/:message_id
+Obtener todos los mensajes de un grupo por su id de grupo
+- **Ruta:** GET /message/group/get-messages/:group_id'
 
 ## Nota
 
