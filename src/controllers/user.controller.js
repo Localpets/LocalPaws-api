@@ -209,13 +209,14 @@ export const userGenderDelete = async (req, res = response) => {
 }
 
 export const userChangeProfilePicture = async (req, res = response) => {            
-        upload(req, res, async (err) => {
+    upload(req, res, async (err) => {
+        try {
             if (err) {
-            console.error(err);
-            return res.status(400).json({
-                ok: false,
-                msg: err.message
-            });
+                console.error(err);
+                return res.status(400).json({
+                    ok: false,
+                    msg: err.message
+                });
             }
             
             // validar si viene la imagen
@@ -230,14 +231,6 @@ export const userChangeProfilePicture = async (req, res = response) => {
             const result = await cloudinary.uploader.upload(req.file.path);
     
             const user_id = parseInt(req.params.user_id);
-            
-            // borrar carpeta anterior de pfp
-            const userOld = await User.getUserById(user_id);
-            const oldPath = userOld.thumbnail;
-            await cloudinary.api.delete_folder(oldPath);
-
-            // delete server folder
-            fs.rmdirSync(join(__dirname, `../uploads/assets/pfp/${oldPath}`), { recursive: true });
 
 
             // Actualizar el usuario en la base de datos
@@ -255,8 +248,14 @@ export const userChangeProfilePicture = async (req, res = response) => {
                 ok: true,
                 user
             });
-        });
-
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                ok: false,
+                msg: 'Ocurrió un error interno en el servidor'
+            });
+        }
+    });
 }
 
 // export const userChangePassword = async (req, res = response) => {
