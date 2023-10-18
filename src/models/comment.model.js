@@ -89,6 +89,16 @@ class Comment {
 
     // Funcion para obtener todos los comentarios de un post
     static async readAllCommentsBycomment_post_id(comment_post_id) {
+        const post = await prisma.post.findUnique({
+            where: {
+                post_id: comment_post_id
+            }
+        });
+    
+        if (!post) {
+            return null; // Devuelve null si el comment_post_id no existe.
+        }
+
         const res = await prisma.postComment.findMany({
             where: {
                 comment_post_id: comment_post_id,
@@ -117,7 +127,7 @@ class Comment {
                     username: user.username,
                     avatar: user.thumbnail
                 },
-                children: children
+                children: children ? children : []
             }
         }));
 

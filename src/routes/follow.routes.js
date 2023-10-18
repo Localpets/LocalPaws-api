@@ -13,7 +13,7 @@ import {
 } from '../controllers/follow.controller.js';
 
 // Verificar token de usuario admin
-import verifyToken from '../middlewares/authJWT.js';
+import verifyToken from '../middlewares/authUserJWT.js';
 
 // instanciar el Router
 const followRouter = Router();

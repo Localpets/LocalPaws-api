@@ -23,7 +23,7 @@ import {
 } from '../controllers/location.controller.js';
 
 // Importar metodos de verificacion de tokens
-import verifyToken from '../middlewares/authJWT.js';
+import verifyToken from '../middlewares/authUserJWT.js';
 // Parsear metadata de archivos subidos
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Tipos de archivos permitidos

@@ -25,7 +25,19 @@ export async function commentGet(req, res) {
 export async function commentGetAll(req, res) {
     try {
         const postId = parseInt(req.params.comment_post_id);
-        const comments = await Comment.readAllCommentsBycomment_post_id(postId);
+        let comments;
+         
+        if (postId) {
+            comments = await Comment.readAllCommentsBycomment_post_id(postId);
+        }
+
+        if (comments === null) {
+            return res.status(404).json({
+                ok: false,
+                msg: "No se encontraron comentarios para el post"
+            });
+        }
+
         res.status(200).json({
         msg: "Comentarios obtenidos correctamente",
         ok: true,

@@ -117,7 +117,16 @@ export async function getAllPosts(req, res = response) {
 export async function getPostById(req, res = response) {
   const id = parseInt(req.params.id);
   try {
+
     const post = await Post.getPostById(id);
+
+    if (post === null) {
+      return res.status(400).json({
+        ok: false,
+        msg: "No se pudo obtener el post",
+      });
+    }
+
     return res.status(200).json({
       msg: "Post obtenido correctamente por id",
       ok: true,
@@ -153,6 +162,7 @@ export async function getPostsByUserId(req, res = response) {
 
 // actualizar un post
 export async function updatePost(req, res = response) {
+
   const post_id = parseInt(req.params.post_id);
   const post_user_id = parseInt(req.params.post_user_id);
   const { text } = req.body;
@@ -224,13 +234,16 @@ export async function deletePost(req, res = response) {
 
 // obtener posts por follows de user
 export async function getPostsByFollows(req, res = response) {
+  // /find/follows/user/:userId?page=:page
+  
   const userId = parseInt(req.params.userId);
-    
+  const page = parseInt(req.params.page);
+
   if (!userId) {
     return 
   } else {
     try {
-      const posts = await Post.getPostsByFollows(userId);
+      const posts = await Post.getPostsByFollows(userId, page);
       return res.status(200).json({
         msg: "Posts obtenidos correctamente por follows de usuario",
         ok: true,
