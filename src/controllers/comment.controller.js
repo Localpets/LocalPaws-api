@@ -21,31 +21,22 @@ export async function commentGet(req, res) {
     }
 }
 
-// Funcion para obtener todos los comentarios de un post
-
+// Funcion para obtener todos los comentarios de un post ID
 export async function commentGetAll(req, res) {
     try {
         const postId = parseInt(req.params.comment_post_id);
-        const comments = await Comment.readAllCommentsBycomment_post_id(postId);
-        res.status(200).json({
-        msg: "Comentarios obtenidos correctamente",
-        ok: true,
-        comments
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-        ok: false,
-        msg: "Error al obtener los comentarios del post"
-        });
-    }
-}
+        let comments;
+         
+        if (postId) {
+            comments = await Comment.readAllCommentsBycomment_post_id(postId);
+        }
 
-// Obtener comentario por ID del padre
-export async function getSiblingsFromParentCommentId(req, res) {
-    try {
-        const parent_comment_id = parseInt(req.params.parent_comment_id);
-        const comments = await Comment.getCommentsByParentCommentId(parent_comment_id);
+        if (comments === null) {
+            return res.status(404).json({
+                ok: false,
+                msg: "No se encontraron comentarios para el post"
+            });
+        }
 
         res.status(200).json({
         msg: "Comentarios obtenidos correctamente",
@@ -94,11 +85,9 @@ export async function commentPost(req, res) {
 export async function commentPut(req, res) {
     try {
         const id = parseInt(req.params.comment_id);
-        const updatedAt = new Date();
         const comment = await Comment.updateComment(
         id,
-        req.body.text,
-        updatedAt
+        req.body.text
         );
         res.status(200).json({
         msg: "Comentario actualizado correctamente",

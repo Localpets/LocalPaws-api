@@ -16,7 +16,7 @@ import {
 } from "../controllers/post.controller.js";
 
 // Verificar token de usuario admin
-import verifyToken from "../middlewares/authJWT.js";
+import verifyToken from "../middlewares/authUserJWT.js";
 
 const postRouter = Router();
 
@@ -36,7 +36,7 @@ postRouter.delete("/delete/:id/:post_user_id", verifyToken, deletePost);
 
 // OBTENER POSTS POR CATEGORÍA
 // obtener todos los posts de las personas que sigue un usuario
-postRouter.get("/find/follows/user/:userId", verifyToken, getPostsByFollows);
+postRouter.get("/find/follows/user/:userId/page/:page", verifyToken, getPostsByFollows);
 // obtener todos los posts de una categoría
 postRouter.get("/find/category/:category", verifyToken, getPostsByCategory);
 

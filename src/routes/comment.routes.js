@@ -8,18 +8,16 @@ import {
     commentLike,
     commentGetLikes,
     commentDeleteLike,
-    commentUpdateLike,
-    getSiblingsFromParentCommentId
+    commentUpdateLike
 } from '../controllers/comment.controller.js';
 // Verificar token de usuario admin
-import verifyToken from "../middlewares/authJWT.js";
+import verifyToken from "../middlewares/authUserJWT.js";
 
 
 const commentRouter = Router();
 // COMMENT CRUD
 commentRouter.get('/find/:comment_id', verifyToken, commentGet);
 commentRouter.get('/find/post/:comment_post_id', verifyToken, commentGetAll);
-commentRouter.get('/find/parent/:parent_comment_id', verifyToken, getSiblingsFromParentCommentId)
 commentRouter.post('/create', verifyToken, commentPost);
 commentRouter.put('/update/:comment_id', verifyToken, commentPut);
 commentRouter.delete('/delete/:comment_id', verifyToken, commentDelete);

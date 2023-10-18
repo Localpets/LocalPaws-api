@@ -20,20 +20,27 @@ class User {
   }
 
   // Método estático para crear un usuario en la base de datos
-  static async createUser(phoneNumber, firstName, lastName, username, email, password, type = 'USER', gender = 'not specified', token, marketing_accept = false) {
+  static async createUser(phoneNumber, firstName, lastName, email, password, gender, type, marketing_accept, username, token, location) {
+
+    console.log('Data being received for user creating method: ', {
+      phoneNumber, firstName, lastName, email, password, gender, type, marketing_accept, username, token, location
+    })
+
     const res = await prisma.user.create({
       data: {
+        // pass data in order of the model
         phone_number: phoneNumber,
         first_name: firstName,
         last_name: lastName,
-        username,
-        email,
-        password,
-        type,
-        gender,
-        token,
-        marketing_accept,
-      },
+        email: email,
+        password: password,
+        gender: gender,
+        type: type,
+        marketing_accept: marketing_accept,
+        username: username,
+        token: token,
+        location: location,
+      }
     });
 
     const userWithoutPasswordAndToken = {
@@ -44,6 +51,7 @@ class User {
       first_name: res.first_name,
       last_name: res.last_name,
       username: res.username,
+      token: res.token,
       gender: res.gender,
       type: res.type,
     }
@@ -75,6 +83,7 @@ class User {
       first_name: res.first_name,
       last_name: res.last_name,
       username: res.username,
+      token: res.token,
       gender: res.gender,
       type: res.type,
     }
@@ -123,6 +132,7 @@ class User {
       first_name: res.first_name,
       last_name: res.last_name,
       username: res.username,
+      token: res.token,
       gender: res.gender,
       type: res.type,
     }
@@ -144,6 +154,7 @@ class User {
       first_name: res.first_name,
       last_name: res.last_name,
       username: res.username,
+      token: res.token,
       gender: res.gender,
       type: res.type,
     }
@@ -213,11 +224,13 @@ class User {
     });
   }
 
-  static async changeProfilePicture(user_id, thumbnail) {
+  static async changeProfileInfo(user_id, thumbnail, username, biography) {
     const res = await prisma.user.update({
       where: { user_id: user_id },
       data: {
-        thumbnail: thumbnail
+        thumbnail: thumbnail,
+        username: username,
+        biography: biography
       },
     });
 
@@ -229,6 +242,7 @@ class User {
       first_name: res.first_name,
       last_name: res.last_name,
       username: res.username,
+      token: res.token,
       gender: res.gender,
       type: res.type,
     }

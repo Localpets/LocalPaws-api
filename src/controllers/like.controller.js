@@ -110,8 +110,7 @@ const updateLikeById = async (req, res = response) => {
     try {
         const { like_id } = req.params;
         const { like_type } = req.body;
-        const updatedAt = new Date();
-        const updatedLike = await Like.updateLikeById(like_id, like_type, updatedAt);
+        const updatedLike = await Like.updateLikeById(like_id, like_type);
         res.status(200).json({
             ok: true,
             msg: 'Like actualizado correctamente',

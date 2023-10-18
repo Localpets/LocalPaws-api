@@ -117,7 +117,16 @@ export async function getAllPosts(req, res = response) {
 export async function getPostById(req, res = response) {
   const id = parseInt(req.params.id);
   try {
+
     const post = await Post.getPostById(id);
+
+    if (post === null) {
+      return res.status(400).json({
+        ok: false,
+        msg: "No se pudo obtener el post",
+      });
+    }
+
     return res.status(200).json({
       msg: "Post obtenido correctamente por id",
       ok: true,
@@ -153,17 +162,16 @@ export async function getPostsByUserId(req, res = response) {
 
 // actualizar un post
 export async function updatePost(req, res = response) {
+
   const post_id = parseInt(req.params.post_id);
   const post_user_id = parseInt(req.params.post_user_id);
   const { text } = req.body;
-  const updatedDate = new Date();
 
   try {
     const post = await Post.updatePost(
       post_id,
       text,
-      post_user_id,
-      updatedDate
+      post_user_id
     );
     return res.status(200).json({
       msg: "Post actualizado correctamente",
@@ -184,15 +192,31 @@ export async function deletePost(req, res = response) {
   const id = parseInt(req.params.id);
   try {
     const post = await Post.deletePost(id);
-    // delete folder on cloudinary
-    const folder = post.image.split("/")[6];
-    await cloudinary.api.delete_folder(folder);
 
-    // delete server folder
-    const path = post.image.split("/")[7];
-    console.log(path);
-    fs.unlinkSync(`./uploads/assets/postImage/${path}`);
-    console.log(path)
+    if (!post) {
+      return res.status(400).json({
+        ok: false,
+        msg: "No se pudo eliminar el post",
+      });
+    }
+
+    if (post.image === 'no image') {
+      return res.status(200).json({
+        msg: "Post eliminado correctamente",
+        ok: true,
+        post,
+      });
+    } else {
+      // delete folder on cloudinary
+      const folder = post.image.split("/")[6];
+      await cloudinary.api.delete_folder(folder);
+
+      // delete server folder
+      const path = post.image.split("/")[7];
+      console.log(path);
+      fs.unlinkSync(`./uploads/assets/postImage/${path}`);
+      console.log(path)
+    }
 
     return res.status(200).json({
       msg: "Post eliminado correctamente",
@@ -210,13 +234,16 @@ export async function deletePost(req, res = response) {
 
 // obtener posts por follows de user
 export async function getPostsByFollows(req, res = response) {
+  // /find/follows/user/:userId?page=:page
+  
   const userId = parseInt(req.params.userId);
-    
+  const page = parseInt(req.params.page);
+
   if (!userId) {
     return 
   } else {
     try {
-      const posts = await Post.getPostsByFollows(userId);
+      const posts = await Post.getPostsByFollows(userId, page);
       return res.status(200).json({
         msg: "Posts obtenidos correctamente por follows de usuario",
         ok: true,

@@ -36,36 +36,60 @@ export const userRegister = async (req, res) => {
     const salt = bcryptjs.genSaltSync(10);
     const hashedPassword = bcryptjs.hashSync(req.body.password, salt);
 
+    // location
+    const locationRaw = req.body.location || 'N/A'; // [lat, long]
     // Validar el tipo de usuario
-    const type = req.body.type || 'USER'
+    const type = req.body.type
     // Obtener el username 
     const username = '@' + req.body.username || req.body.email.split('@')[0];
-    // Crear el token de usuario y guardarlo en la base de datos con el id del usuario creado si es ADMIN
-    let userToken = 'no token provided'; // Inicializar como 'no token provided'
+    // Crear el token
+    let userToken = 'No token provided'
 
     try {
+        // DEBUG DATA RECEIVED
+        console.log('Data being received for user creating method: ',
+            req.body.phone_number,
+            req.body.first_name,
+            req.body.last_name,
+            req.body.email,
+            hashedPassword,
+            req.body.gender,
+            type,
+            req.body.marketing_accept,
+            username,
+            userToken,
+            locationRaw
+        )
+
         // Crear el usuario
         const createdUser = await User.createUser(
             req.body.phone_number,
             req.body.first_name,
             req.body.last_name,
-            username,
             req.body.email,
             hashedPassword,
-            type,
             req.body.gender,
+            type,
+            req.body.marketing_accept,
+            username,
             userToken,
-            req.body.marketing_accept
+            locationRaw
         );
+
         // Si el tipo de usuario es ADMIN, guardar el token en la base de datos y actualizar el token del usuario
         if (type === 'ADMIN') {
             // Crear el token
             userToken = jwt.sign({ id: createdUser.user_id }, process.env.SECRET);
             await User.createAdminToken(createdUser.user_id, userToken);
             await User.updateUserToken(createdUser.user_id, userToken);
+        } else {
+            // Crear el token
+            userToken = jwt.sign({ id: createdUser.user_id }, process.env.SECRET);
+            await User.updateUserToken(createdUser.user_id, userToken);
         }
+
         // Si el usuario fue creado correctamente, enviar mensaje de éxito
-        console.log('Usuario creado correctamente');
+        console.log('Usuario creado correctamente', createdUser);
 
         return res.status(201).json({
             ok: true,

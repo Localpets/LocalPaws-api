@@ -89,6 +89,16 @@ class Comment {
 
     // Funcion para obtener todos los comentarios de un post
     static async readAllCommentsBycomment_post_id(comment_post_id) {
+        const post = await prisma.post.findUnique({
+            where: {
+                post_id: comment_post_id
+            }
+        });
+    
+        if (!post) {
+            return null; // Devuelve null si el comment_post_id no existe.
+        }
+
         const res = await prisma.postComment.findMany({
             where: {
                 comment_post_id: comment_post_id,
@@ -104,7 +114,7 @@ class Comment {
                 }
             });
 
-
+        const children = await this.getCommentsByParentCommentId(comment.comment_id);
 
             return {
                 comment_id: comment.comment_id,
@@ -116,7 +126,8 @@ class Comment {
                     user_id: user.user_id,
                     username: user.username,
                     avatar: user.thumbnail
-                }
+                },
+                children: children ? children : []
             }
         }));
 
@@ -124,14 +135,14 @@ class Comment {
     
     }
     // Funcion para actualizar un comentario
-    static async updateComment(comment_id, content, updatedAt) {
+    static async updateComment(comment_id, content) {
         return await prisma.PostComment.update({
             where: {
                 comment_id: comment_id
             },
             data: {
                 text: content,
-                updatedAt: updatedAt
+                updatedAt: new Date()
             }
         });
     }
