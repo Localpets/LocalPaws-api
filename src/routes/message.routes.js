@@ -22,6 +22,7 @@ import {
     getAllGroups,
     getGroupsByUserId,
     createGroupParticipant,
+    deleteGroupParticipant,
     getGroupParticipants,
     createMessageInGroup,
     getMessageInGroupById,
@@ -67,6 +68,7 @@ messageRouter.get('/group/get-all/:user_id', getGroupsByUserId);
 
 // Rutas relacionadas con participantes de grupo
 messageRouter.post('/group/add-participant', createGroupParticipant);
+messageRouter.delete('/group/kick-participant/:group_id/:user_id', deleteGroupParticipant);
 messageRouter.get('/group/get-participants/:group_id', getGroupParticipants);
 
 // Rutas relacionadas con mensajes de grupo

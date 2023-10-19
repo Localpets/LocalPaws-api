@@ -220,14 +220,26 @@ class Group {
   }
   
   
-    static async createGroupParticipant(groupId, userId) {
+    static async createGroupParticipant(groupId, userId, rol) {
       return await prisma.groupParticipant.create({
         data: {
           groupId,
           userId,
+          rol
         },
       });
     }
+
+    static async deleteGroupParticipant(groupId, userId) {
+      console.log(groupId, userId)
+      return await prisma.groupParticipant.deleteMany({
+        where: { 
+          groupId: groupId,
+          userId: userId
+        },
+      });
+    }
+    
   
     static async getGroupParticipants(groupId) {
       return await prisma.groupParticipant.findMany({

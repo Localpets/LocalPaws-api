@@ -595,8 +595,8 @@ export async function createGroup(req, res) {
   
   export async function createGroupParticipant(req, res) {
     try {
-      const { groupId, userId } = req.body;
-      const groupParticipant = await Group.createGroupParticipant(groupId, userId);
+      const { groupId, userId, rol } = req.body;
+      const groupParticipant = await Group.createGroupParticipant(groupId, userId, rol);
       res.status(201).json({
         ok: true,
         msg: "Participante de grupo creado correctamente",
@@ -607,6 +607,23 @@ export async function createGroup(req, res) {
       res.status(500).json({
         ok: false,
         msg: "Error al crear el participante de grupo",
+      });
+    }
+  }
+
+  export async function deleteGroupParticipant(req, res) {
+    const { group_id, user_id} = req.params;
+    try {
+      await Group.deleteGroupParticipant(parseInt(group_id), parseInt(user_id));
+      res.status(200).json({
+        ok: true,
+        msg: "Participante de grupo eliminado correctamente"
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Error al eliminar al participante de grupo",
       });
     }
   }

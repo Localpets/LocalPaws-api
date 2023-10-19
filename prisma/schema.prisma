@@ -171,6 +171,7 @@ model GroupParticipant {
   id       Int     @id @default(autoincrement())
   groupId  Int
   userId   Int
+  rol      String @default("member")
   user      User         @relation(fields: [userId], references: [user_id])
   group     GroupChat        @relation(fields: [groupId], references: [id])
   @@index([groupId])

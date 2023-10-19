@@ -189,6 +189,16 @@ class Server {
                     this.io.to(Data.userId).emit('DeletedChatBtnUpdate', Data.messageIds);
                 })
 
+                //socket para actualizar la lista de grupos
+                socket.on('updateGroups', (User) => {
+                    this.io.to(User).emit('updateGroups');
+                })
+
+                //socket para actualizar la lista de miembros
+                socket.on('updateMembers', (User) => {
+                    this.io.to(User).emit('updateMembers');
+                })
+
                 //socket para desconectar al usuario del cliente
                 socket.on('disconnect', () => {
                     console.log(`Cliente con ID ${userId} desconectado.`);
