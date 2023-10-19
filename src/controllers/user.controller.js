@@ -208,7 +208,7 @@ export const userGenderDelete = async (req, res = response) => {
 
 }
 
-export const userChangeProfilePicture = async (req, res = response) => {            
+export const userChangeProfileInfo = async (req, res = response) => {            
         upload(req, res, async (err) => {
             if (err) {
                 console.error(err);
@@ -246,25 +246,4 @@ export const userChangeProfilePicture = async (req, res = response) => {
                 ok: true,
                 user
             });
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({
-                ok: false,
-                msg: 'Ocurrió un error interno en el servidor'
-            });
-        }
-    });
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({
-                ok: false,
-                msg: 'Ocurrió un error interno en el servidor'
-            });
-        }
-    });
-}
-
-
-
-// export const userChangePassword = async (req, res = response) => {
-// }
+})}
