@@ -47,7 +47,22 @@ class Post {
                     post_id: id
                 }
             });
-            return post;
+            
+            if (!post) {
+                return null;
+            }
+
+            const postUser = await prisma.user.findUnique({
+                where: {
+                    user_id: post.post_user_id
+                }
+            });
+
+            return {
+                // Pasar las props de post
+                ...post,
+                postUser
+            };
         } catch (error) {
             console.error(error);
         }
@@ -101,36 +116,72 @@ class Post {
     }
 
     // obtener post por los follows de un usuario (feed)
-    static async getPostsByFollows(userId) {
+    static async getPostsByFollows(userId, page = 1) {
         try {
             const id = userId;
+            
             const userFollows = await prisma.follow.findMany({
                 where: {
                     followerId: parseInt(id)
                 }
-            })
-
+            });
+    
             const userFollowsIds = userFollows.map((follow) => {
                 return follow.followedId;
             });
-
+    
             const postsRaw = await prisma.post.findMany();
-            
+    
             const posts = postsRaw.filter((post) => {
                 return userFollowsIds.includes(post.post_user_id);
             });
-
-            // Traer tambien los posts del usuario
+    
+            // Add the user's own posts to the list
             const userPosts = await prisma.post.findMany({
                 where: {
                     post_user_id: id
                 }
             });
-
-            // Concatenar los posts del usuario con los posts de los follows
+    
             posts.push(...userPosts);
-            
-            return posts;
+    
+            // Sort the posts by creation date
+            posts.sort((a, b) => {
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+    
+            // Define the number of posts per page
+            const postsPerPage = 8;
+    
+            // Calculate the start and end indices for the current page
+            const startIndex = (page - 1) * postsPerPage;
+            const endIndex = startIndex + postsPerPage;
+    
+            // Get the posts for the current page
+            const postsForPage = posts.slice(startIndex, endIndex);
+    
+            // Determine if there are more posts
+            const hasMore = endIndex < posts.length;
+    
+
+            // Si el usuario no tiene seguidos recomendar posts random
+            if (posts.length === 0) {
+                const randomPosts = await prisma.post.findMany({
+                    take: 8,
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                });
+                return {
+                    posts: randomPosts,
+                    hasMore
+                };
+            }
+
+            return {
+                posts: postsForPage,
+                hasMore
+            };
         } catch (error) {
             console.error(error);
         }

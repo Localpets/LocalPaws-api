@@ -11,7 +11,7 @@ import {
     commentUpdateLike
 } from '../controllers/comment.controller.js';
 // Verificar token de usuario admin
-import verifyToken from "../middlewares/authJWT.js";
+import verifyToken from "../middlewares/authUserJWT.js";
 
 
 const commentRouter = Router();

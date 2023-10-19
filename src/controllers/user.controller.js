@@ -208,9 +208,8 @@ export const userGenderDelete = async (req, res = response) => {
 
 }
 
-export const userChangeProfileInfo = async (req, res = response) => {
-    upload(req, res, async (err) => {
-        try {
+export const userChangeProfilePicture = async (req, res = response) => {            
+        upload(req, res, async (err) => {
             if (err) {
                 console.error(err);
                 return res.status(400).json({
@@ -222,26 +221,14 @@ export const userChangeProfileInfo = async (req, res = response) => {
             const { username, biography } = req.body;
     
             const user_id = parseInt(req.params.user_id);
-    
-            let thumbnail = null; // Inicializamos con null
-            if (req.file) {
-                // Si se envió una imagen, la subimos a Cloudinary y actualizamos el campo thumbnail
-                const result = await cloudinary.uploader.upload(req.file.path);
-                thumbnail = result.secure_url;
-            } else {
-                // Si no se envió una imagen, conservamos la imagen existente del usuario
-                const existingUser = await User.getUserById(user_id);
-                if (existingUser) {
-                    thumbnail = existingUser.thumbnail;
-                }
-            }
-    
-            // Obtener el usuario existente
-            const existingUser = await User.getUserById(user_id);
+            
+            // borrar carpeta anterior de pfp
+            const userOld = await User.getUserById(user_id);
+            const oldPath = userOld.thumbnail;
+            await cloudinary.api.delete_folder(oldPath);
 
-            // Comprobar si username y biography son proporcionados, si no, mantener los valores existentes
-            const updatedUsername = username ? "@" + username : existingUser.username;
-            const updatedBiography = biography || existingUser.biography;
+            // delete server folder
+            fs.rmdirSync(join(__dirname, `../uploads/assets/pfp/${oldPath}`), { recursive: true });
 
     
             // Actualizar el usuario en la base de datos
@@ -259,6 +246,14 @@ export const userChangeProfileInfo = async (req, res = response) => {
                 ok: true,
                 user
             });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                ok: false,
+                msg: 'Ocurrió un error interno en el servidor'
+            });
+        }
+    });
         } catch (error) {
             console.error(error);
             return res.status(500).json({

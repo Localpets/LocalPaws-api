@@ -17,7 +17,7 @@ import {
 } from '../controllers/user.controller.js';
 
 // Importar metodos de verificacion de tokens
-import verifyToken from '../middlewares/authJWT.js';
+import verifyToken from '../middlewares/authAdminJWT.js';
 
 const userRouter = Router();
 // CRUD de usuarios
