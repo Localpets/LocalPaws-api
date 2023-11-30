@@ -6,27 +6,31 @@ const prisma = new PrismaClient();
 
 // Clase de ubicación para interactuar con la base de datos mediante Prisma
 class Location {
-  constructor(title, lat, lng, address, type, userCreatedId, locationPhotos) {
-    this.title = title;
+  constructor(name, lat, lng, address, type, userCreatedId, locationPhotos, schedule, phone_number) {
+    this.name = name;
     this.lat = lat;
     this.lng = lng;
     this.address = address;
     this.type = type;
     this.userCreatedId = userCreatedId;
     this.locationPhotos = locationPhotos;
+    this.phone_number = phone_number;
+    this.schedule = schedule;
   }
 
   // Método estático para crear una ubicación en la base de datos
-  static async createLocation(title, lat, lng, address, type, userCreatedId, locationPhotos) {
+  static async createLocation(name, lat, lng, address, type, userCreatedId, locationPhotos, userPhone, locationschedule) {
     return await prisma.location.create({
       data: {
-        title,
+        name,
         lat,
         lng,
         address,
         type,
         user_created_id: userCreatedId,
         location_photos: locationPhotos,
+        phone_number: userPhone,
+        schedule: locationschedule
       },
     });
   }
@@ -125,27 +129,32 @@ class Location {
   static async createLocationReview(locationId, userId, score) {
     return await prisma.locationReview.create({
       data: {
-        locationId,
-        userId,
+        review_user_id: userId,
         score,
+        review_location_id: locationId
       }
     });
   }   
 
   // Metodo estatico para leer todas las reviews de una ubicación
-  static async readAllLocationReviews(locationId) {
+  static async readAllLocationReviews() {
+    return await prisma.locationReview.findMany();
+  }
+
+  static async readLocationReviews(id) {
     return await prisma.locationReview.findMany({
-      where: { locationId },
+      where: { review_location_id: id},
     });
   }
 
   // Metodo estatico para borrar una review de una ubicación por su ID
   static async updateLocationReviewById(id, score) {
     return await prisma.locationReview.update({
-      where: { location_review_id: id },
-      score
+      where: { review_id: id },
+      data: { score },
     });
   }
+  
 }
 
 export default Location;

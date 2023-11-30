@@ -19,6 +19,7 @@ import {
     deleteLocationPhotoById,
     createLocationReview,
     readAllLocationReviews,
+    getLocationReviewById,
     updateLocationReviewById
 } from '../controllers/location.controller.js';
 
@@ -75,6 +76,7 @@ locationRouter.delete('/photo/delete/:id', verifyToken, deleteLocationPhotoById)
 // CRUD de reseñas de ubicación
 locationRouter.post('/review/create', verifyToken, createLocationReview);
 locationRouter.get('/review/find/all', verifyToken, readAllLocationReviews);
+locationRouter.get('/review/find/:id', verifyToken, getLocationReviewById);
 locationRouter.put('/review/update/:id', verifyToken, updateLocationReviewById);
 
 

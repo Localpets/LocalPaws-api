@@ -7,20 +7,22 @@ import Location from "../models/location.model.js";
 
 export const createLocation = async (req, res = response) => {
     // Extraer el body de la petición
-    const { title, lat, lng, address, type, location_photos } = req.body;
+    const { name, lat, lng, address, type, location_photos, phone_number, schedule } = req.body;
     
     const user_created_id = parseInt(req.body.userCreatedId);
 
     try {
         // Crear una nueva ubicación
         const location = await Location.createLocation(
-        title,
+        name,
         lat,
         lng,
         address,
         type,
         user_created_id,
-        location_photos
+        location_photos,
+        phone_number,
+        schedule
         );
     
         // Responder al cliente con la ubicación creada
@@ -41,19 +43,21 @@ export const createLocation = async (req, res = response) => {
 export const updateLocation = async (req, res = response) => {
     // Extraer el body y el ID de la petición
     const id = parseInt(req.params.id);
-    const { title, lat, lng, address, type, userCreatedId, locationPhotos } =
+    const { name, lat, lng, address, type, userCreatedId, locationPhotos, phone_number, schedule } =
         req.body;
     
     try {
         // Actualizar la ubicación
         const location = await Location.updateLocation(id, {
-        title,
+        name,
         lat,
         lng,
         address,
         type,
         userCreatedId,
         locationPhotos,
+        phone_number,
+        schedule
         });
     
         // Responder al cliente con la ubicación actualizada
@@ -344,7 +348,7 @@ export const deleteLocationPhotoById = async (req, res = response) => {
 
 export const createLocationReview = async (req, res = response) => {
     // Extraer el body de la petición
-    const locationId = parseInt(req.params.id);
+    const locationId = parseInt(req.body.locationId);
     const userId = parseInt(req.body.userId);
     const score = parseInt(req.body.score);
 
@@ -389,6 +393,29 @@ export const readAllLocationReviews = async (req, res = response) => {
         });
     }
 };
+
+export const getLocationReviewById = async (req, res = response) => {
+    // Extraer el ID de la petición
+    const id = parseInt(req.params.id);
+    
+    try {
+        // Leer una ubicación por su ID
+        const reviews = await Location.readLocationReviews(id);
+    
+        // Responder al cliente con la ubicación
+        res.status(200).json({
+        msg: "reviews obtenida correctamente",
+        ok: true,
+        reviews,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+        ok: false,
+        msg: "Error en el servidor, revisa los logs",
+        });
+    }
+}
 
 export const updateLocationReviewById = async (req, res = response) => {
     // Extraer el ID de la petición

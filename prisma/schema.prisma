@@ -80,18 +80,22 @@ model UserGenderType {
 
 // location
 model Location {
-  location_id       Int     @id @default(autoincrement())
-  title             String  @default("no title")
+  location_id       Int           @id @default(autoincrement())
   lat               String
   lng               String
   address           String
   type              String
   user_created_id   Int
+  createdAt         DateTime      @default(now())
+  name              String        @default("no name")
+  schedule          String?
+  phone_number      String?
   location_photos   LocationPhoto[]
-  createdAt         DateTime @default(now())
+
   @@index([user_created_id], name: "location_user_created_id_foreign")
-  @@index([type], name: "location_type_title_foreign")
+  @@index([type], name: "location_type_name_foreign")
 }
+
 
 // location_type
 model LocationType {
