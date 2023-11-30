@@ -24,7 +24,6 @@ const verifyToken = async (req, res, next) => {
         }
 
         if (userId.type === 'USER' || userId.type === 'ADMIN') {
-            console.log('El usuario ', userId.username, ' con ID ',userId.user_id ,' es un usuario normal y pudo realizar esta accion.')
             next();
         }
 

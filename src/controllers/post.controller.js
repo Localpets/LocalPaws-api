@@ -163,26 +163,69 @@ export async function getPostsByUserId(req, res = response) {
 // actualizar un post
 export async function updatePost(req, res = response) {
 
+  console.log('Data being received: ',
+    req.body,
+    req.file)
+
   const post_id = parseInt(req.params.post_id);
-  const post_user_id = parseInt(req.params.post_user_id);
-  const { text } = req.body;
 
   try {
-    const post = await Post.updatePost(
-      post_id,
-      text,
-      post_user_id
-    );
-    return res.status(200).json({
-      msg: "Post actualizado correctamente",
-      ok: true,
-      post,
+    upload(req, res, async (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(400).json({
+          ok: false,
+          msg: err.message
+        });
+      }
+
+      // validar si viene la imagen
+      if (!req.file) {
+        const post_id = parseInt(req.params.post_id);
+        const post_user_id = parseInt(req.params.post_user_id);
+        const { text, category } = req.body;
+        // Crear el post con la URL de la imagen de Cloudinary
+        const post = await Post.updatePost(post_id, text, category, null, post_user_id);
+
+        return res.status(201).json({
+          msg: 'Post creado correctamente',
+          ok: true,
+          post
+        });
+      }
+
+      const { text, category } = req.body;
+      const post_user_id = parseInt(req.body.post_user_id);
+
+      // Subir la imagen a Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: `postImages/user:${post_user_id}`,
+        resource_type: 'image',
+        public_id: `date-${Date.now()}`,
+        overwrite: true,
+      });
+
+      // Crear el post con la URL de la imagen de Cloudinary
+      const post = await Post.updatePost(post_id, text, category, result.secure_url, post_user_id);
+
+      if (!post) {
+        return res.status(400).json({
+          ok: false,
+          msg: 'No se pudo crear el post'
+        });
+      }
+
+      return res.status(201).json({
+        msg: 'Post creado correctamente',
+        ok: true,
+        post
+      });
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       ok: false,
-      msg: "Error interno del servidor",
+      msg: 'Error interno del servidor'
     });
   }
 }

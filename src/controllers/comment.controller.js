@@ -210,3 +210,41 @@ export async function commentUpdateLike(req, res) {
         });
     }
 }
+
+// Funcion para obtener todos los comment de un post id
+export async function commentGetAllByPostId(req, res) {
+    try {
+        const comment_post_id = parseInt(req.params.comment_post_id);
+        const comments = await Comment.readAllCommentsBycomment_post_id(comment_post_id);
+        res.status(200).json({
+        msg: "Comentarios obtenidos correctamente",
+        ok: true,
+        comments
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+        ok: false,
+        msg: "Error al obtener los comentarios del post"
+        });
+    }
+}
+
+// Funcion para obtener todos los comment de un post id de un usuario con infos de user getCommentsByUserId
+export async function commentGetAllByUserId(req, res) {
+    try {
+        const user_id = parseInt(req.params.user_id);
+        const comments = await Comment.getCommentsByUserId(user_id);
+        res.status(200).json({
+        msg: "Comentarios obtenidos correctamente",
+        ok: true,
+        comments
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+        ok: false,
+        msg: "Error al obtener los comentarios del post"
+        });
+    }
+}

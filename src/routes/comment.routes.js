@@ -8,7 +8,9 @@ import {
     commentLike,
     commentGetLikes,
     commentDeleteLike,
-    commentUpdateLike
+    commentUpdateLike,
+    commentGetAllByPostId,
+    commentGetAllByUserId
 } from '../controllers/comment.controller.js';
 // Verificar token de usuario admin
 import verifyToken from "../middlewares/authUserJWT.js";
@@ -17,10 +19,13 @@ import verifyToken from "../middlewares/authUserJWT.js";
 const commentRouter = Router();
 // COMMENT CRUD
 commentRouter.get('/find/:comment_id', verifyToken, commentGet);
+commentRouter.get('/find/post/:comment_post_id', verifyToken, commentGetAllByPostId);
 commentRouter.get('/find/post/:comment_post_id', verifyToken, commentGetAll);
 commentRouter.post('/create', verifyToken, commentPost);
 commentRouter.put('/update/:comment_id', verifyToken, commentPut);
 commentRouter.delete('/delete/:comment_id', verifyToken, commentDelete);
+// GET ALL COMMENTS WITH USERS TO AN SPECIFICAL ID
+commentRouter.get('/find/all/:user_id', verifyToken, commentGetAllByUserId);
 
 // LIKE COMMENT CRUD 
 commentRouter.post('/like/create/:comment_id', verifyToken, commentLike);

@@ -134,6 +134,57 @@ class Like {
             console.error(error);
         }
     }
+
+    // Obtener todos los likes dados a una persona por su ID post_user_id = user_id con los datos de los usuarios que dieron like
+    static async readAllLikesByPostUserId(post_user_id) {
+        try {
+            const likesWithUserData = [];
+
+            const posts = await prisma.post.findMany({
+                where: {
+                    post_user_id: parseInt(post_user_id)
+                }
+            });
+
+            // find likes of that posts
+
+            for (const post of posts) {
+                const likes = await prisma.like.findMany({
+                    where: {
+                        post_id: post.post_id
+                    }
+                });
+                // for each like find user data
+                for (const like of likes) {
+                    const user = await prisma.user.findUnique({
+                        where: {
+                            user_id: like.user_id
+                        },
+                        select: {
+                            user_id: true,
+                            username: true,
+                            email: true,
+                            thumbnail: true,
+                            type: true
+                        }
+                    });
+
+                    likesWithUserData.push({
+                        post_id: post.post_id,
+                        like_id: like.like_id,
+                        like_type: like.like_type,
+                        like_created_at: like.createdAt,
+                        like_updated_at: like.updatedAt,
+                        user
+                    });
+                }
+            }
+
+            return likesWithUserData;
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }
 
 export default Like;

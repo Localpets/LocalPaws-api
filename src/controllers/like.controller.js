@@ -125,6 +125,27 @@ const updateLikeById = async (req, res = response) => {
     }
 }
 
+// Obtener todos los likes dados a una persona por su ID post_user_id = user_id con los datos de los usuarios que dieron like
+const readAllLikesByPostUserId = async (req, res = response) => {
+    try {
+        const { user_id } = req.params;
+
+        const likes = await Like.readAllLikesByPostUserId(user_id);
+
+        res.status(200).json({
+            ok: true,
+            msg: 'Likes obtenidos correctamente',
+            likes
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error al obtener los likes'
+        });
+    }
+}
+
 // exportar las funciones de like
 export {
     createLike,
@@ -132,5 +153,6 @@ export {
     readAllLikesByUserId,
     readAllLikesByPostId,
     deleteLike,
-    updateLikeById
+    updateLikeById,
+    readAllLikesByPostUserId
 }

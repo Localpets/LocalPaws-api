@@ -83,21 +83,137 @@ class Post {
     }
 
     // actualizar un post
-    static async updatePost(post_id, text, post_user_id ) {
-        try {
-            const post = await prisma.post.update({
-                where: {
-                    post_id: post_id,
-                    post_user_id: post_user_id
-                },
-                data: {
-                    text,
-                    updatedAt: new Date()
-                }
-            });
-            return post;
-        } catch (error) {
-            console.error(error);
+    static async updatePost(post_id, text, category, image, post_user_id ) {
+        console.log('Data received in model: ', post_id, text, category, image, post_user_id)
+        if (text === 'null' && category === 'null' && image === 'null') return;
+
+        if (text === 'null' && category === 'null') {
+            try {
+                const post = await prisma.post.update({
+                    where: {
+                        post_id: post_id,
+                        post_user_id: post_user_id
+                    },
+                    data: {
+                        image,
+                        updatedAt: new Date()
+                    }
+                });
+                return post;
+            } catch (error) {
+                console.error(error);
+            }
+        } else if (text === 'null' && image === 'null') {
+            try {
+                const post = await prisma.post.update({
+                    where: {
+                        post_id: post_id,
+                        post_user_id: post_user_id
+                    },
+                    data: {
+                        category,
+                        updatedAt: new Date()
+                    }
+                });
+                return post;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        else if (category === 'null' && image === 'null') {
+            try {
+                const post = await prisma.post.update({
+                    where: {
+                        post_id: post_id,
+                        post_user_id: post_user_id
+                    },
+                    data: {
+                        text,
+                        updatedAt: new Date()
+                    }
+                });
+                return post;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        else if (text === 'null') {
+            try {
+                const post = await prisma.post.update({
+                    where: {
+                        post_id: post_id,
+                        post_user_id: post_user_id
+                    },
+                    data: {
+                        category,
+                        image,
+                        updatedAt: new Date()
+                    }
+                });
+                return post;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        else if (category === 'null') {
+            try {
+                const post = await prisma.post.update({
+                    where: {
+                        post_id: post_id,
+                        post_user_id: post_user_id
+                    },
+                    data: {
+                        text,
+                        image,
+                        updatedAt: new Date()
+                    }
+                });
+                return post;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        else if (image === null) {
+            try {
+                const post = await prisma.post.update({
+                    where: {
+                        post_id: post_id,
+                        post_user_id: post_user_id
+                    },
+                    data: {
+                        text,
+                        category,
+                        updatedAt: new Date()
+                    }
+                });
+                return post;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        else {
+            try {
+                const post = await prisma.post.update({
+                    where: {
+                        post_id: post_id,
+                        post_user_id: post_user_id
+                    },
+                    data: {
+                        text,
+                        category,
+                        image,
+                        updatedAt: new Date()
+                    }
+                });
+                return post;
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
 

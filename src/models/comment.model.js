@@ -136,7 +136,7 @@ class Comment {
     }
     // Funcion para actualizar un comentario
     static async updateComment(comment_id, content) {
-        return await prisma.PostComment.update({
+        return await prisma.postComment.update({
             where: {
                 comment_id: comment_id
             },
@@ -197,6 +197,62 @@ class Comment {
                 like_type: like_type
             }
         });
+    }
+
+    // Obtener todos los comments dados a una persona por su ID post_user_id = user_id con los datos de los usuarios que dieron comments
+    static async getCommentsByUserId(user_id) {
+        // conseguir posts donde el post_user_id es el user_id que se pasa por parametro
+        const posts = await prisma.post.findMany({
+            where: {
+                post_user_id: parseInt(user_id)
+            }
+        });
+
+        // conseguir comments de esos posts
+
+        const comments = await Promise.all(posts.map(async (post) => {
+            const comments = await prisma.postComment.findMany({
+                where: {
+                    comment_post_id: post.post_id
+                }
+            });
+
+            // conseguir user info de cada comment
+
+            const commentsWithUserData = await Promise.all(comments.map(async (comment) => {
+                const user = await prisma.user.findUnique({
+                    where: {
+                        user_id: comment.comment_user_id
+                    }
+                });
+
+                return {
+                    comment_id: comment.comment_id,
+                    comment_user_id: comment.comment_user_id,
+                    comment_post_id: comment.comment_post_id,
+                    parent_comment_id: comment.parent_comment_id,
+                    text: comment.text,
+                    user: {
+                        user_id: user.user_id,
+                        username: user.username,
+                        avatar: user.thumbnail
+                    }
+                }
+            }));
+
+            return commentsWithUserData;
+        }));
+
+        const commentsWithStructure = comments.map((postComments, index) => {
+            return {
+                post_id: posts[index].post_id,
+                quantity: postComments.length,
+                comments: postComments
+            }
+        }
+        );
+
+        return commentsWithStructure;
     }
 }
 

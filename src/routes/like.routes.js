@@ -5,7 +5,8 @@ import {
     readAllLikesByUserId,
     readAllLikesByPostId,
     deleteLike,
-    updateLikeById
+    updateLikeById,
+    readAllLikesByPostUserId
 } from '../controllers/like.controller.js';
 
 // Importar metodos de verificacion de tokens
@@ -19,6 +20,7 @@ likeRouter.put('/update/:like_id',verifyToken, updateLikeById);
 likeRouter.get('/find/id/:like_id',verifyToken, readLikeById);
 likeRouter.get('/user/:user_id',verifyToken, readAllLikesByUserId);
 likeRouter.get('/post/:post_id',verifyToken, readAllLikesByPostId);
+likeRouter.get('/posts/user/:user_id',verifyToken, readAllLikesByPostUserId);
 likeRouter.delete('/delete/:post_id/:user_id',verifyToken, deleteLike);
 
 export default likeRouter;
