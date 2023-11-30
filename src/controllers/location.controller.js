@@ -7,23 +7,27 @@ import Location from "../models/location.model.js";
 
 export const createLocation = async (req, res = response) => {
     // Extraer el body de la petición
-    const { name, lat, lng, address, type, location_photos, phone_number, schedule } = req.body;
+    const { name, lat, lng, address, type, user_created_id, location_photos, phone_number, schedule } = req.body;
     
-    const user_created_id = parseInt(req.body.userCreatedId);
+    console.log("here", user_created_id)
 
     try {
         // Crear una nueva ubicación
         const location = await Location.createLocation(
-        name,
-        lat,
-        lng,
-        address,
-        type,
-        user_created_id,
-        location_photos,
-        phone_number,
-        schedule
-        );
+            name,
+            lat,
+            lng,
+            address,
+            type,
+            user_created_id,
+            {
+                create: location_photos.map(photo => ({ photo_url: photo })),
+            }
+            ,
+            phone_number,
+            schedule,
+          );
+          
     
         // Responder al cliente con la ubicación creada
         res.status(201).json({

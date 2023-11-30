@@ -12,7 +12,7 @@ class Location {
     this.lng = lng;
     this.address = address;
     this.type = type;
-    this.userCreatedId = userCreatedId;
+    this.user_created_id = userCreatedId;
     this.locationPhotos = locationPhotos;
     this.phone_number = phone_number;
     this.schedule = schedule;
