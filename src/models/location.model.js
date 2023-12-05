@@ -115,7 +115,15 @@ class Location {
   
   // Metodo estatico para leer todas las fotos de ubicación
   static async readAllLocationPhotos(id) {
-    return await prisma.locationPhoto.findMany({where: {locationId: id}});
+    return await prisma.locationPhoto.findMany({where: {location_id: id}});
+  }
+
+  // Método estático para actualizar una foto de ubicación en la base de datos
+  static async updatePhotoLocation(id, url) {
+    return await prisma.locationPhoto.update({
+      where: { location_photo_id: parseInt(id) },
+      data: { photo_url: url }
+    });
   }
 
   // Metodo estatico para borrar una foto de ubicación por su ID 

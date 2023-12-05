@@ -1,83 +1,160 @@
 // importar response de express, para tener el tipado de la respuesta de la petición.
 import { response } from "express";
 
+import multer from "multer";
+import { dirname, join, extname } from "path";
+import { fileURLToPath } from "url";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
+
 // importar el modelo de ubicación
 
 import Location from "../models/location.model.js";
 
+// Configura Multer para subir archivos
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const userId = req.body.sender_id;
+      const userFolderPath = join(__dirname, `../uploads/assets/chatsImage/user_${userId}/`);
+  
+      // Crea la carpeta del usuario si no existe
+      if (!fs.existsSync(userFolderPath)) {
+        fs.mkdirSync(userFolderPath, { recursive: true });
+      }
+  
+      cb(null, userFolderPath);
+    },
+    filename: (req, file, cb) => {
+      const ext = extname(file.originalname);
+      const fileName = `${Math.round(Math.random() * 1e9)}${ext}`;
+      cb(null, fileName);
+    }
+  });
+  
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5000000 },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Formato de archivo no válido'));
+    }
+  }
+}).array('image');
+
 export const createLocation = async (req, res = response) => {
     // Extraer el body de la petición
-    const { name, lat, lng, address, type, user_created_id, location_photos, phone_number, schedule } = req.body;
-    
-    console.log("here", user_created_id)
-
+    const { name, lat, lng, address, type, user_created_id, phone_number, schedule } = req.body;
+  
     try {
-        // Crear una nueva ubicación
-        const location = await Location.createLocation(
-            name,
-            lat,
-            lng,
-            address,
-            type,
-            user_created_id,
-            {
-                create: location_photos.map(photo => ({ photo_url: photo })),
-            }
-            ,
-            phone_number,
-            schedule,
-          );
-          
-    
-        // Responder al cliente con la ubicación creada
-        res.status(201).json({
-        msg: "Ubicación creada correctamente",
-        ok: true,
-        location,
+      // Subir las imágenes a Cloudinary
+      const uploadPromises = req.files.map(async (file) => {
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: `LocationsImages/user:${user_created_id}`,
+          resource_type: 'image',
+          overwrite: true,
         });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-        ok: false,
-        msg: "Error en el servidor, revisa los logs",
-        });
-    }
-};
-
-export const updateLocation = async (req, res = response) => {
-    // Extraer el body y el ID de la petición
-    const id = parseInt(req.params.id);
-    const { name, lat, lng, address, type, userCreatedId, locationPhotos, phone_number, schedule } =
-        req.body;
-    
-    try {
-        // Actualizar la ubicación
-        const location = await Location.updateLocation(id, {
+        return { photo_url: result.secure_url };
+      });
+  
+      // Esperar a que todas las imágenes se suban antes de continuar
+      const uploadedImages = await Promise.all(uploadPromises);
+  
+      // Crear una nueva ubicación
+      const location = await Location.createLocation(
         name,
         lat,
         lng,
         address,
         type,
-        userCreatedId,
-        locationPhotos,
+        user_created_id,
+        {
+          create: uploadedImages,
+        },
         phone_number,
         schedule
-        });
-    
-        // Responder al cliente con la ubicación actualizada
-        res.status(200).json({
-        msg: "Ubicación actualizada correctamente",
+      );
+  
+      // Responder al cliente con la ubicación creada
+      res.status(201).json({
+        msg: 'Ubicación creada correctamente',
         ok: true,
         location,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        ok: false,
+        msg: 'Error en el servidor, revisa los logs',
+      });
+    }
+  };
+  
+
+export const updateLocation = async (req, res) => {
+    const id = parseInt(req.params.id);
+    try {
+        // Utilizar multer para manejar las imágenes
+        upload(req, res, async (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(400).json({
+                    ok: false,
+                    msg: err.message
+                });
+            }
+
+            const { name, address, phone_number, schedule } = req.body
+
+            // Actualizar la ubicación (sin incluir las fotos)
+            const location = await Location.updateLocation(id, {
+                name,
+                address,
+                phone_number,
+                schedule,
+            });
+
+            // Verificar si hay archivos adjuntos
+            if (req.files && req.files.length > 0) {
+                const locationPhotos = req.files;
+                
+                // Iterar sobre los archivos
+                locationPhotos.forEach(async (photo) => {
+                    // Acceder a las propiedades específicas del archivo
+                    const result = await cloudinary.uploader.upload(photo.path, {
+                        folder: `LocationsImages/location:${photo.originalname}`,
+                        resource_type: 'image',
+                        overwrite: true,
+                    });
+                    await Location.updatePhotoLocation(photo.originalname, result.secure_url);
+
+                });
+            
+            }
+
+            // Responder al cliente con la ubicación actualizada
+            res.status(200).json({
+                msg: 'Ubicación actualizada correctamente',
+                ok: true,
+                location,
+            });
         });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({
-        ok: false,
-        msg: "Error en el servidor, revisa los logs",
+            ok: false,
+            msg: 'Error en el servidor, revisa los logs',
         });
     }
 };
+
+
+
 
 export const readAllLocations = async (req, res = response) => {
     try {
