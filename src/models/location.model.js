@@ -19,19 +19,29 @@ class Location {
   }
 
   // Método estático para crear una ubicación en la base de datos
-  static async createLocation(name, lat, lng, address, type, userCreatedId, locationPhotos, userPhone, locationschedule) {
+  static async createLocation(nameForLocation, lat, lng, address, type, userCreatedId, locationPhotos, userPhone, locationschedule) {
+
+    console.log("body received in model NAME", nameForLocation)
+
     return await prisma.location.create({
       data: {
-        name,
-        lat,
-        lng,
-        address,
-        type,
-        user_created_id: userCreatedId,
-        location_photos: locationPhotos,
-        phone_number: userPhone,
-        schedule: locationschedule
-      },
+        name: nameForLocation.name,
+        lat: nameForLocation.lat,
+        lng: nameForLocation.lng,
+        address: nameForLocation.address,
+        type: nameForLocation.type,
+        user_created_id: parseInt(nameForLocation.user_created_id),
+        phone_number: nameForLocation.phone_number,
+        schedule: nameForLocation.schedule
+        // name,
+        // lng,
+        // address,
+        // type,
+        // user_created_id: userCreatedId,
+        // location_photos: locationPhotos,
+        // phone_number: userPhone,
+        // schedule: locationschedule
+      }
     });
   }
 
@@ -107,8 +117,8 @@ class Location {
   static async createLocationPhoto(locationId, url) {
     return await prisma.locationPhoto.create({
       data: {
-        locationId,
-        url
+        location_id: locationId,
+        photo_url: url
       }
     });
   }
