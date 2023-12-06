@@ -47,44 +47,63 @@ const upload = multer({
 }).array('image');
 
 export const createLocation = async (req, res = response) => {
-    // Extraer el body de la petición
-    const { name, lat, lng, address, type, user_created_id, phone_number, schedule } = req.body;
-  
     try {
-      // Subir las imágenes a Cloudinary
-      const uploadPromises = req.files.map(async (file) => {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: `LocationsImages/user:${user_created_id}`,
-          resource_type: 'image',
-          overwrite: true,
+        // Utilizar multer para manejar las imágenes
+        upload(req, res, async (err) => {
+            if (err) {
+            console.error(err);
+            return res.status(400).json({
+                ok: false,
+                msg: err.message
+            });
+            }
+
+            const { name, lat, lng, address, type, user_created_id, phone_number, schedule} = req.body
+            console.log('body', {
+                name,
+                lat,
+                lng,
+                address,
+                type,
+                user_created_id,
+                phone_number,
+                schedule
+            })
+            // Crear la ubicación
+            const location = await Location.createLocation({
+                name,
+                lat,
+                lng,
+                address,
+                type,
+                user_created_id,
+                phone_number,
+                schedule
+            });
+
+            // Verificar si hay archivos adjuntos
+            if (req.files && req.files.length > 0) {
+            const locationPhotos = req.files;
+
+            // Iterar sobre los archivos
+            locationPhotos.forEach(async (photo) => {
+                // Acceder a las propiedades específicas del archivo
+                const result = await cloudinary.uploader.upload(photo.path, {
+                folder: `LocationsImages/location:${photo.originalname}`,
+                resource_type: 'image',
+                overwrite: true,
+                });
+                await Location.createLocationPhoto(location.location_id, result.secure_url);
+            });
+            }
+    
+            // Responder al cliente con la ubicación creada
+            res.status(201).json({
+            msg: 'Ubicación creada correctamente',
+            ok: true,
+            location,
+            });
         });
-        return { photo_url: result.secure_url };
-      });
-  
-      // Esperar a que todas las imágenes se suban antes de continuar
-      const uploadedImages = await Promise.all(uploadPromises);
-  
-      // Crear una nueva ubicación
-      const location = await Location.createLocation(
-        name,
-        lat,
-        lng,
-        address,
-        type,
-        user_created_id,
-        {
-          create: uploadedImages,
-        },
-        phone_number,
-        schedule
-      );
-  
-      // Responder al cliente con la ubicación creada
-      res.status(201).json({
-        msg: 'Ubicación creada correctamente',
-        ok: true,
-        location,
-      });
     } catch (error) {
       console.log(error);
       res.status(500).json({
