@@ -3,108 +3,158 @@ import bcryptjs from 'bcryptjs';
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
+import multer from "multer";
+import { dirname, join, extname } from "path";
+import { fileURLToPath } from "url";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
+
 // Importar modelos POO
 import User from "../models/user.model.js";
 import Auth from "../models/auth.model.js";
+import { createLocation } from './location.controller.js';
+
+// Configura Multer para subir archivos
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const userFolderPath = join(__dirname, `../uploads/assets/LocationsImage`);
+  
+      // Crea la carpeta del usuario si no existe
+      if (!fs.existsSync(userFolderPath)) {
+        fs.mkdirSync(userFolderPath, { recursive: true });
+      }
+  
+      cb(null, userFolderPath);
+    },
+    filename: (req, file, cb) => {
+      const ext = extname(file.originalname);
+      const fileName = `${Math.round(Math.random() * 1e9)}${ext}`;
+      cb(null, fileName);
+    }
+  });
+  
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5000000 },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Formato de archivo no válido'));
+    }
+  }
+}).array('image');
+
 
 dotenv.config();
 
 // Registro de usuario
 export const userRegister = async (req, res) => {
-
-    // REVISAR SI EL USUARIO EXISTE
-    const q = await Auth.validateUserAlreadyExists(req.body.email)
-    // Revision de username duplicado
-    const q2 = await Auth.validateUserNameAlreadyExists(req.body.username)
-
-    // SI EL USUARIO EXISTE, ENVIAR ERROR
-    if (q) {
-        return res.status(400).json({
-            ok: false,
-            msg: 'Un usuario ya existe con ese email'
-        })
-    } else if (q2) {
-        return res.status(405).json({
-            ok: false,
-            msg: 'Un usuario ya existe con ese username'
-        })
-    }
-
-    // Comenzar a crear el usuario
-
-    // Hashear el password     
-    const salt = bcryptjs.genSaltSync(10);
-    const hashedPassword = bcryptjs.hashSync(req.body.password, salt);
-
-    // location
-    const locationRaw = req.body.location || 'N/A'; // [lat, long]
-    // Validar el tipo de usuario
-    const type = req.body.type
-    // Obtener el username 
-    const username = '@' + req.body.username || req.body.email.split('@')[0];
-    // Crear el token
-    let userToken = 'No token provided'
-
-    try {
-        // DEBUG DATA RECEIVED
-        console.log('Data being received for user creating method: ',
-            req.body.phone_number,
-            req.body.first_name,
-            req.body.last_name,
-            req.body.email,
-            hashedPassword,
-            req.body.gender,
-            type,
-            req.body.marketing_accept,
-            username,
-            userToken,
-            locationRaw
-        )
-
-        // Crear el usuario
-        const createdUser = await User.createUser(
-            req.body.phone_number,
-            req.body.first_name,
-            req.body.last_name,
-            req.body.email,
-            hashedPassword,
-            req.body.gender,
-            type,
-            req.body.marketing_accept,
-            username,
-            userToken,
-            locationRaw
-        );
-
-        // Si el tipo de usuario es ADMIN, guardar el token en la base de datos y actualizar el token del usuario
-        if (type === 'ADMIN') {
-            // Crear el token
-            userToken = jwt.sign({ id: createdUser.user_id }, process.env.SECRET);
-            await User.createAdminToken(createdUser.user_id, userToken);
-            await User.updateUserToken(createdUser.user_id, userToken);
-        } else {
-            // Crear el token
-            userToken = jwt.sign({ id: createdUser.user_id }, process.env.SECRET);
-            await User.updateUserToken(createdUser.user_id, userToken);
+    // Utilizar multer para manejar las imágenes
+    upload(req, res, async (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(400).json({
+                ok: false,
+                msg: err.message
+            });
         }
 
-        // Si el usuario fue creado correctamente, enviar mensaje de éxito
-        console.log('Usuario creado correctamente', createdUser);
+        try {
+            // REVISAR SI EL USUARIO EXISTE
+            const q = await Auth.validateUserAlreadyExists(req.body.email);
+            // Revision de username duplicado
+            const q2 = await Auth.validateUserNameAlreadyExists(req.body.username);
 
-        return res.status(201).json({
-            ok: true,
-            msg: 'Usuario creado correctamente',
-            token: userToken,
-        });
-    } catch (error) {
-        console.log(error);
-        // Si el usuario no pudo ser creado, enviar error 500
-        return res.status(500).json({
-            ok: false,
-            msg: 'El usuario no pudo ser creado a pesar de no existir, contacte al administrador',
-        });
-    }
-}
+            // SI EL USUARIO EXISTE, ENVIAR ERROR
+            if (q) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Un usuario ya existe con ese email'
+                });
+            } else if (q2) {
+                return res.status(405).json({
+                    ok: false,
+                    msg: 'Un usuario ya existe con ese username'
+                });
+            }
+
+            // Comenzar a crear el usuario
+            const { first_name, last_name, phone_number, email, password, gender, type, marketing_accept, username, location } = req.body
+
+            // Hashear el password
+            const salt = bcryptjs.genSaltSync(10);
+            const hashedPassword = bcryptjs.hashSync(password, salt);
+
+            // location
+            const locationRaw = location || 'N/A';
+
+            // Obtener el username
+            const usernameNew = '@' + username || email.split('@')[0];
+
+            // Crear el token
+            let userToken = 'No token provided';
+
+            // Obtener latitud y longitud de la cadena de ubicación
+            const [lat, lng] = locationRaw.split(',').map(coord => coord.trim()); 
+            console.log("lat: ", lat, " lng: ", lng)        
+
+            // Crear el usuario
+            const createdUser = await User.createUser(
+                phone_number,
+                first_name,
+                last_name,
+                email,
+                hashedPassword,
+                gender,
+                type,
+                Boolean(marketing_accept),
+                usernameNew,
+                userToken,
+                locationRaw
+            );
+
+            // Si el tipo de usuario es 'MEMBER', crear la ubicación
+            if (type === 'MEMBER') {
+
+                const {localName, localAddress, localType, localPhone, localSchedule} = req.body
+
+                const locationData = {
+                    name: localName,
+                    lat: lat,
+                    lng: lng,
+                    address: localAddress,
+                    type: localType,
+                    user_created_id: createdUser.user_id,
+                    phone_number: localPhone,
+                    schedule: localSchedule,
+                };
+
+                console.log("location: ",locationData)
+            }
+
+            // Si el usuario fue creado correctamente, enviar mensaje de éxito
+            console.log('Usuario creado correctamente', createdUser);
+
+            return res.status(201).json({
+                ok: true,
+                msg: 'Usuario creado correctamente',
+                token: userToken,
+            });
+        } catch (error) {
+            console.log(error);
+            // Si el usuario no pudo ser creado, enviar error 500
+            return res.status(500).json({
+                ok: false,
+                msg: 'El usuario no pudo ser creado a pesar de no existir, contacte al administrador',
+            });
+        }
+    });
+};
 
 // Login de usuario
 export const userLogin = async (req, res) => {

@@ -16,8 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      const userId = req.body.sender_id;
-      const userFolderPath = join(__dirname, `../uploads/assets/chatsImage/user_${userId}/`);
+      const userFolderPath = join(__dirname, `../uploads/assets/LocationsImage`);
   
       // Crea la carpeta del usuario si no existe
       if (!fs.existsSync(userFolderPath)) {
