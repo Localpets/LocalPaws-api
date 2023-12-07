@@ -6,13 +6,13 @@ import dotenv from "dotenv";
 import multer from "multer";
 import { dirname, join, extname } from "path";
 import { fileURLToPath } from "url";
-import { v2 as cloudinary } from "cloudinary";
+import { v4 as uuidv4 } from 'uuid';
 import fs from "fs";
 
 // Importar modelos POO
 import User from "../models/user.model.js";
 import Auth from "../models/auth.model.js";
-import { createLocation } from './location.controller.js';
+import { createLocation, updateUserLocation } from './location.controller.js';
 
 // Configura Multer para subir archivos
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -54,106 +54,126 @@ dotenv.config();
 
 // Registro de usuario
 export const userRegister = async (req, res) => {
-    // Utilizar multer para manejar las imágenes
-    upload(req, res, async (err) => {
-        if (err) {
-            console.error(err);
-            return res.status(400).json({
-                ok: false,
-                msg: err.message
-            });
-        }
+  // Utilizar multer para manejar las imágenes
+  upload(req, res, async (err) => {
+      if (err) {
+          console.error(err);
+          return res.status(400).json({
+              ok: false,
+              msg: err.message
+          });
+      }
 
-        try {
-            // REVISAR SI EL USUARIO EXISTE
-            const q = await Auth.validateUserAlreadyExists(req.body.email);
-            // Revision de username duplicado
-            const q2 = await Auth.validateUserNameAlreadyExists(req.body.username);
+      try {
+          // REVISAR SI EL USUARIO EXISTE
+          const q = await Auth.validateUserAlreadyExists(req.body.email);
+          // Revision de username duplicado
+          const q2 = await Auth.validateUserNameAlreadyExists(req.body.username);
 
-            // SI EL USUARIO EXISTE, ENVIAR ERROR
-            if (q) {
-                return res.status(400).json({
-                    ok: false,
-                    msg: 'Un usuario ya existe con ese email'
-                });
-            } else if (q2) {
-                return res.status(405).json({
-                    ok: false,
-                    msg: 'Un usuario ya existe con ese username'
-                });
-            }
+          // SI EL USUARIO EXISTE, ENVIAR ERROR
+          if (q) {
+              return res.status(400).json({
+                  ok: false,
+                  msg: 'Un usuario ya existe con ese email'
+              });
+          } else if (q2) {
+              return res.status(405).json({
+                  ok: false,
+                  msg: 'Un usuario ya existe con ese username'
+              });
+          }
 
-            // Comenzar a crear el usuario
-            const { first_name, last_name, phone_number, email, password, gender, type, marketing_accept, username, location } = req.body
+          // Comenzar a crear el usuario
+          const { first_name, last_name, phone_number, email, password, gender, type, marketing_accept, username, location } = req.body
 
-            // Hashear el password
-            const salt = bcryptjs.genSaltSync(10);
-            const hashedPassword = bcryptjs.hashSync(password, salt);
+          // Hashear el password
+          const salt = bcryptjs.genSaltSync(10);
+          const hashedPassword = bcryptjs.hashSync(password, salt);
 
-            // location
-            const locationRaw = location || 'N/A';
+          // location
+          const locationRaw = location || 'N/A';
 
-            // Obtener el username
-            const usernameNew = '@' + username || email.split('@')[0];
+          // Obtener el username
+          const usernameNew = '@' + username || email.split('@')[0];
 
-            // Crear el token
-            let userToken = 'No token provided';
+          // Crear el token
+          let userToken = 'No token provided';
 
-            // Obtener latitud y longitud de la cadena de ubicación
-            const [lat, lng] = locationRaw.split(',').map(coord => coord.trim()); 
-            console.log("lat: ", lat, " lng: ", lng)        
+          // Obtener latitud y longitud de la cadena de ubicación
+          const [lat, lng] = locationRaw.split(',').map(coord => coord.trim());
 
-            // Crear el usuario
-            const createdUser = await User.createUser(
-                phone_number,
-                first_name,
-                last_name,
-                email,
-                hashedPassword,
-                gender,
-                type,
-                Boolean(marketing_accept),
-                usernameNew,
-                userToken,
-                locationRaw
-            );
+          let createdUser;
 
-            // Si el tipo de usuario es 'MEMBER', crear la ubicación
-            if (type === 'MEMBER') {
+          // If the user type is 'MEMBER', create the location
+          if (type === 'MEMBER') {
+              const { localName, localAddress, localType, localPhone, localSchedule } = req.body;
+              const temporaryLocationId = uuidv4();
+              const temporaryLocationIdAsNumber = parseInt(temporaryLocationId, 10);
+              const locationData = {
+                  name: localName,
+                  lat,
+                  lng,
+                  address: localAddress,
+                  type: localType,
+                  user_created_id: temporaryLocationId,
+                  phone_number: localPhone,
+                  schedule: localSchedule,
+              };
 
-                const {localName, localAddress, localType, localPhone, localSchedule} = req.body
+              const createdLocation = await createLocation({ body: locationData, files: req.files }, res);
 
-                const locationData = {
-                    name: localName,
-                    lat: lat,
-                    lng: lng,
-                    address: localAddress,
-                    type: localType,
-                    user_created_id: createdUser.user_id,
-                    phone_number: localPhone,
-                    schedule: localSchedule,
-                };
+              createdUser = await User.createUser(
+                  phone_number,
+                  first_name,
+                  last_name,
+                  email,
+                  hashedPassword,
+                  gender,
+                  type,
+                  Boolean(marketing_accept),
+                  usernameNew,
+                  userToken,
+                  locationRaw
+              );
+              const ids = {
+                temporaryLocationIdAsNumber,
+                user_created_id: createdUser.user_id
+              }
+              console.log("here", createdLocation)
 
-                console.log("location: ",locationData)
-            }
+          } else {
+              createdUser = await User.createUser(
+                  phone_number,
+                  first_name,
+                  last_name,
+                  email,
+                  hashedPassword,
+                  gender,
+                  type,
+                  Boolean(marketing_accept),
+                  usernameNew,
+                  userToken,
+                  locationRaw
+              );
+          }
 
-            // Si el usuario fue creado correctamente, enviar mensaje de éxito
-            console.log('Usuario creado correctamente', createdUser);
+          // Si el usuario fue creado correctamente, enviar mensaje de éxito
+          console.log('Usuario creado correctamente', createdUser);
 
-            return res.status(201).json({
-                ok: true,
-                msg: 'Usuario creado correctamente',
-                token: userToken,
-            });
-        } catch (error) {
-            console.log(error);
-            // Si el usuario no pudo ser creado, enviar error 500
-            return res.status(500).json({
-                ok: false,
-                msg: 'El usuario no pudo ser creado a pesar de no existir, contacte al administrador',
-            });
-        }
-    });
+          return res.status(201).json({
+              ok: true,
+              msg: 'Usuario creado correctamente',
+              token: userToken,
+          });
+      } catch (error) {
+          console.log(error);
+          // Si hay un error, enviar error 500
+          return res.status(500).json({
+              ok: false,
+              msg: 'Hubo un error en la creación del usuario o la ubicación, contacte al administrador',
+          });
+      }
+  });
 };
 
 // Login de usuario

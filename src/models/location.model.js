@@ -33,14 +33,6 @@ class Location {
         user_created_id: parseInt(nameForLocation.user_created_id),
         phone_number: nameForLocation.phone_number,
         schedule: nameForLocation.schedule
-        // name,
-        // lng,
-        // address,
-        // type,
-        // user_created_id: userCreatedId,
-        // location_photos: locationPhotos,
-        // phone_number: userPhone,
-        // schedule: locationschedule
       }
     });
   }
@@ -51,6 +43,23 @@ class Location {
       where: { location_id: id },
       data,
     });
+  }
+
+   // Método estático para actualizar el ID del usuario en la ubicación
+  static async updateUserLocation(temporaryLocationId, actualUserId) {
+    try {
+      // Actualizar el ID del usuario en la ubicación
+      const updatedLocation = await prisma.location.update({
+        where: { user_created_id: temporaryLocationId },
+        data: {
+          user_created_id: actualUserId,
+        },
+      });
+
+      return updatedLocation;
+    } catch (error) {
+      throw error;
+    }
   }
 
   // Método estático para leer todas las ubicaciones de la base de datos

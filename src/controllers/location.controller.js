@@ -171,9 +171,28 @@ export const updateLocation = async (req, res) => {
     }
 };
 
-
-
-
+export const updateUserLocation = async (req, res) => {
+    // Extraer los datos necesarios de la petición
+    const { temporaryLocationIdAsNumber, user_created_id } = req.body;
+  
+    try {
+      // Llamar a la función estática del modelo para actualizar la ubicación
+      const updatedLocation = await Location.updateUserLocation(temporaryLocationIdAsNumber, user_created_id);
+  
+      // Responder al cliente con la ubicación actualizada
+      res.status(200).json({
+        msg: 'Ubicación actualizada correctamente',
+        ok: true,
+        updatedLocation,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        ok: false,
+        msg: 'Error en el servidor, revisa los logs',
+      });
+    }
+  };
 export const readAllLocations = async (req, res = response) => {
     try {
         // Leer todas las ubicaciones
