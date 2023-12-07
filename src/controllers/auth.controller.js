@@ -6,13 +6,13 @@ import dotenv from "dotenv";
 import multer from "multer";
 import { dirname, join, extname } from "path";
 import { fileURLToPath } from "url";
-import { v4 as uuidv4 } from 'uuid';
 import fs from "fs";
 
 // Importar modelos POO
 import User from "../models/user.model.js";
 import Auth from "../models/auth.model.js";
-import { createLocation, updateUserLocation } from './location.controller.js';
+import { createUserAuthLocation, updateUserLocation } from './location.controller.js';
+import Location from '../models/location.model.js';
 
 // Configura Multer para subir archivos
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -65,22 +65,14 @@ export const userRegister = async (req, res) => {
       }
 
       try {
-          // REVISAR SI EL USUARIO EXISTE
-          const q = await Auth.validateUserAlreadyExists(req.body.email);
-          // Revision de username duplicado
-          const q2 = await Auth.validateUserNameAlreadyExists(req.body.username);
+          // Validar si el usuario ya existe con el correo electrónico
+          if (await validateUserExists(req.body.email, res)) {
+              return;
+          }
 
-          // SI EL USUARIO EXISTE, ENVIAR ERROR
-          if (q) {
-              return res.status(400).json({
-                  ok: false,
-                  msg: 'Un usuario ya existe con ese email'
-              });
-          } else if (q2) {
-              return res.status(405).json({
-                  ok: false,
-                  msg: 'Un usuario ya existe con ese username'
-              });
+          // Validar si ya existe un usuario con el nombre de usuario
+          if (await validateUsernameExists(req.body.username, res)) {
+              return;
           }
 
           // Comenzar a crear el usuario
@@ -107,22 +99,21 @@ export const userRegister = async (req, res) => {
           // If the user type is 'MEMBER', create the location
           if (type === 'MEMBER') {
               const { localName, localAddress, localType, localPhone, localSchedule } = req.body;
-              const temporaryLocationId = uuidv4();
-              const temporaryLocationIdAsNumber = parseInt(temporaryLocationId, 10);
+              const temporaryLocationIdAsNumber = Math.floor(Math.random() * 10000);
+              let createdLocation
               const locationData = {
                   name: localName,
                   lat,
                   lng,
                   address: localAddress,
                   type: localType,
-                  user_created_id: temporaryLocationId,
                   phone_number: localPhone,
                   schedule: localSchedule,
+                  user_created_id: temporaryLocationIdAsNumber
               };
 
-              const createdLocation = await createLocation({ body: locationData, files: req.files }, res);
-
-              createdUser = await User.createUser(
+                createdLocation = await createUserAuthLocation({ body: locationData, files: req.files }, res);
+                createdUser = await User.createUser(
                   phone_number,
                   first_name,
                   last_name,
@@ -134,15 +125,13 @@ export const userRegister = async (req, res) => {
                   usernameNew,
                   userToken,
                   locationRaw
-              );
-              const ids = {
-                temporaryLocationIdAsNumber,
-                user_created_id: createdUser.user_id
-              }
-              console.log("here", createdLocation)
+                );
+
+                await Location.updateUserLocation(createdUser.user_id, createdLocation.location_id)
+
 
           } else {
-              createdUser = await User.createUser(
+               createdUser = await User.createUser(
                   phone_number,
                   first_name,
                   last_name,
@@ -156,15 +145,11 @@ export const userRegister = async (req, res) => {
                   locationRaw
               );
           }
-
-          // Si el usuario fue creado correctamente, enviar mensaje de éxito
-          console.log('Usuario creado correctamente', createdUser);
-
-          return res.status(201).json({
+          /* return res.status(201).json({
               ok: true,
               msg: 'Usuario creado correctamente',
               token: userToken,
-          });
+          }); */
       } catch (error) {
           console.log(error);
           // Si hay un error, enviar error 500
@@ -174,6 +159,30 @@ export const userRegister = async (req, res) => {
           });
       }
   });
+};
+
+const validateUsernameExists = async (username, res) => {
+  const usernameExists = await Auth.validateUserNameAlreadyExists(username);
+  if (usernameExists) {
+      res.status(405).json({
+          ok: false,
+          msg: 'Un usuario ya existe con ese nombre de usuario'
+      });
+      return true; // Indicate that the validation failed
+  }
+  return false; // Indicate that the validation was successful
+};
+
+const validateUserExists = async (email, res) => {
+  const userExists = await Auth.validateUserAlreadyExists(email);
+  if (userExists) {
+      res.status(400).json({
+          ok: false,
+          msg: 'Un usuario ya existe con ese correo electrónico'
+      });
+      return true; // Indicate that the validation failed
+  }
+  return false; // Indicate that the validation was successful
 };
 
 // Login de usuario

@@ -22,10 +22,6 @@ class User {
   // Método estático para crear un usuario en la base de datos
   static async createUser(phoneNumber, firstName, lastName, email, password, gender, type, marketing_accept, username, token, location) {
 
-    console.log('Data being received for user creating method: ', {
-      phoneNumber, firstName, lastName, email, password, gender, type, marketing_accept, username, token, location
-    })
-
     const res = await prisma.user.create({
       data: {
         // pass data in order of the model

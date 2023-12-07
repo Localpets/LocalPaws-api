@@ -19,9 +19,7 @@ class Location {
   }
 
   // Método estático para crear una ubicación en la base de datos
-  static async createLocation(nameForLocation, lat, lng, address, type, userCreatedId, locationPhotos, userPhone, locationschedule) {
-
-    console.log("body received in model NAME", nameForLocation)
+  static async createLocation(nameForLocation) {
 
     return await prisma.location.create({
       data: {
@@ -46,11 +44,11 @@ class Location {
   }
 
    // Método estático para actualizar el ID del usuario en la ubicación
-  static async updateUserLocation(temporaryLocationId, actualUserId) {
+  static async updateUserLocation(actualUserId, location_id) {
     try {
       // Actualizar el ID del usuario en la ubicación
       const updatedLocation = await prisma.location.update({
-        where: { user_created_id: temporaryLocationId },
+        where: { location_id: location_id },
         data: {
           user_created_id: actualUserId,
         },

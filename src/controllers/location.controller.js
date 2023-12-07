@@ -57,18 +57,8 @@ export const createLocation = async (req, res = response) => {
                 msg: err.message
             });
             }
-
             const { name, lat, lng, address, type, user_created_id, phone_number, schedule} = req.body
-            console.log('body', {
-                name,
-                lat,
-                lng,
-                address,
-                type,
-                user_created_id,
-                phone_number,
-                schedule
-            })
+
             // Crear la ubicación
             const location = await Location.createLocation({
                 name,
@@ -112,7 +102,54 @@ export const createLocation = async (req, res = response) => {
       });
     }
   };
-  
+
+
+  export const createUserAuthLocation = async (req, res = response) => {
+    try {
+            const { name, lat, lng, address, type, user_created_id, phone_number, schedule} = req.body
+            // Crear la ubicación
+            const location = await Location.createLocation({
+                name,
+                lat,
+                lng,
+                address,
+                type,
+                user_created_id,
+                phone_number,
+                schedule
+            });
+
+            // Verificar si hay archivos adjuntos
+            if (req.files && req.files.length > 0) {
+            const locationPhotos = req.files;
+
+            // Iterar sobre los archivos
+            locationPhotos.forEach(async (photo) => {
+                // Acceder a las propiedades específicas del archivo
+                const result = await cloudinary.uploader.upload(photo.path, {
+                folder: `LocationsImages/location:${photo.originalname}`,
+                resource_type: 'image',
+                overwrite: true,
+                });
+                await Location.createLocationPhoto(location.location_id, result.secure_url);
+            });
+            }
+    
+            // Responder al cliente con la ubicación creada
+            res.status(201).json({
+            msg: 'Ubicación creada correctamente',
+            ok: true,
+            location,
+            });
+            return location;
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        ok: false,
+        msg: 'Error en el servidor, revisa los logs',
+      });
+    }
+  };
 
 export const updateLocation = async (req, res) => {
     const id = parseInt(req.params.id);
@@ -172,27 +209,25 @@ export const updateLocation = async (req, res) => {
 };
 
 export const updateUserLocation = async (req, res) => {
-    // Extraer los datos necesarios de la petición
-    const { temporaryLocationIdAsNumber, user_created_id } = req.body;
-  
+    // Extraer datos necesarios de la solicitud
+    const { user_created_id, location_id } = req.body;
+
     try {
-      // Llamar a la función estática del modelo para actualizar la ubicación
-      const updatedLocation = await Location.updateUserLocation(temporaryLocationIdAsNumber, user_created_id);
-  
-      // Responder al cliente con la ubicación actualizada
-      res.status(200).json({
-        msg: 'Ubicación actualizada correctamente',
-        ok: true,
-        updatedLocation,
-      });
+        // Llamar a la función estática del modelo para actualizar la ubicación
+        await Location.updateUserLocation(user_created_id, location_id);
+
+        // Si la actualización es exitosa, puedes enviar una respuesta u realizar otras acciones aquí
+        res.status(200).json({ success: true });
+
     } catch (error) {
-      console.log(error);
-      res.status(500).json({
-        ok: false,
-        msg: 'Error en el servidor, revisa los logs',
-      });
+        // Manejar el error aquí, registrarlo y posiblemente enviar una respuesta de error
+        console.error(error);
+        res.status(500).json({ success: false, error: "Error interno del servidor" });
     }
-  };
+};
+
+
+
 export const readAllLocations = async (req, res = response) => {
     try {
         // Leer todas las ubicaciones
